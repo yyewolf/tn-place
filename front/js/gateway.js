@@ -37,6 +37,7 @@ export class Gateway {
 			console.error("Error making WebSocket connection.");
 			alert("Failed to connect.");
 			this.#socket.close();
+			window.location.href = "/";
 		};
 
 		this.#socket.addEventListener("message", socketMessage);

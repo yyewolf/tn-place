@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>Place</title>
+	<link rel="stylesheet" href="desktop.css" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+	<meta name="description" content="An online pixel canvas inspired by r/place.">
+	<meta name="keywords" content="r/place, place, game, golang, canvas">
+	<link rel="preload" href="/place.png" as="fetch" crossorigin>
+</head>
+
+<body>
+	<canvas id="viewport-canvas" oncontextmenu="return false;"></canvas>
+	<div id="ui-wrapper">
+		<p id="loading-p"></p>
+		<p id="timer-p"></p>
+		<div id="color-wrapper">
+		</div>
+		<div id="zoom-wrapper">
+			<button class="zoom-button" id="zoom-out">
+				-
+			</button>
+			<button class="zoom-button" id="zoom-in">
+				+
+			</button>
+		</div>
+	</div>
+	<button id="help-button" onclick="document.querySelector('#help-popup').style.visibility = 'visible';">
+		<p><strong>Aide</strong></p>
+	</button>
+	<div id="help-popup">
+		<div id="help-text-desktop">
+			<p><strong>Click gauche</strong> pour poser un pixel.</p><br>
+			<p>Molette ou <strong>+</strong> et <strong>-</strong> pour zoomer.</p><br>
+			<p><strong>Ctrl + Click gauche</strong> pour selectionner une couleur.</p><br>
+		</div>
+		<div id="help-text-mobile">
+			<p><strong>Appui Court</strong> pour poser un pixel.</p><br>
+			<p><strong>Ecarter</strong> ou <strong>+</strong> et <strong>-</strong> pour zoomer.</p><br>
+			<p><strong>Appui Long</strong> pour selectionner une couleur.</p><br>
+		</div>
+		<button id="close-help-popup"><strong>Fermer.</strong></button>
+	</div>
+	<script type="module" src="js/place.js"></script>
+	<script>
+		document.querySelector('#close-help-popup').onclick = (e) => {
+			document.querySelector('#help-popup').style.visibility = 'hidden';
+			e.preventDefault();
+		}
+	</script>
+</body>
+
+</html>

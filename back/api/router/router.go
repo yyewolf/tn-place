@@ -3,6 +3,7 @@ package router
 import (
 	"io/ioutil"
 	"time"
+	"tn-place/api/handlers/auth"
 	"tn-place/api/handlers/gateway"
 	"tn-place/api/handlers/image"
 	"tn-place/api/handlers/status"
@@ -33,4 +34,5 @@ func Route(engine *gin.Engine) {
 	status.LoadRoutes(path)
 	image.LoadRoutes(path)
 	gateway.LoadRoutes(path)
+	auth.LoadRoutes(path)
 }

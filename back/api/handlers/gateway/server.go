@@ -47,8 +47,10 @@ func GetGateway(c *gin.Context) {
 	go readLoop(conn, i, c, ch)
 	go writeLoop(conn, ch)
 
+	waiterID := c.MustGet("user_id").(string)
+
 	// Send timer to client
-	w, ok := waiter[c.RemoteIP()]
+	w, ok := waiter[waiterID]
 	if !ok {
 		return
 	}
@@ -64,6 +66,7 @@ func GetGateway(c *gin.Context) {
 var waiter = make(map[string]time.Time)
 
 func readLoop(conn *websocket.Conn, i int, c *gin.Context, ch chan []byte) {
+	waiterID := c.MustGet("user_id").(string)
 	limiter := rateLimiter()
 	for {
 		_, p, err := conn.ReadMessage()
@@ -75,7 +78,7 @@ func readLoop(conn *websocket.Conn, i int, c *gin.Context, ch chan []byte) {
 			fmt.Println("Client kicked for high rate.")
 			break
 		}
-		w, ok := waiter[c.RemoteIP()]
+		w, ok := waiter[waiterID]
 		if ok && w.After(time.Now()) {
 			fmt.Println("Ignored for timeout.")
 			continue
@@ -85,7 +88,7 @@ func readLoop(conn *websocket.Conn, i int, c *gin.Context, ch chan []byte) {
 			break
 		}
 		// User has to wait 60 seconds before setting another pixel
-		waiter[c.RemoteIP()] = time.Now().Add(time.Second * time.Duration(env.Timeout))
+		waiter[waiterID] = time.Now().Add(time.Second * time.Duration(env.Timeout))
 		b := make([]byte, 8)
 		binary.BigEndian.PutUint64(b, uint64(env.Timeout))
 		ch <- b

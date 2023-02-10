@@ -1,9 +1,13 @@
 package gateway
 
-import "github.com/gin-gonic/gin"
+import (
+	middlewares "tn-place/api/handlers/middleware"
+
+	"github.com/gin-gonic/gin"
+)
 
 func LoadRoutes(r *gin.RouterGroup) {
-	gw := r.Group("/gateway")
+	sg := r.Group("/gateway")
 
-	gw.GET("/", GetGateway)
+	sg.GET("/", middlewares.SetStatus(), middlewares.IsLoggedIn(), GetGateway)
 }

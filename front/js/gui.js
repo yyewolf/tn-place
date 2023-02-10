@@ -36,7 +36,8 @@ export const GUI = (cvs, glWindow, gateway) => {
 		inside.classList.add("inside-square");
 		if (i == 0) inside.classList.add("inside-square-selected");
 		inside.style.backgroundColor = sixteenColorsPalette[i];
-		btn.addEventListener("click", () => {
+		btn.addEventListener("click", (e) => {
+			e.preventDefault();
 			let rgb = hexToRgb(sixteenColorsPalette[i]);
 			color[0] = rgb.r;
 			color[1] = rgb.g;
@@ -44,7 +45,6 @@ export const GUI = (cvs, glWindow, gateway) => {
 			inside.style.backgroundColor = sixteenColorsPalette[i];
 			document.querySelector(".inside-square-selected").classList.remove("inside-square-selected");
 			inside.classList.add("inside-square-selected");
-			preventDefault();
 		});
 		btn.appendChild(inside);
 		colorWrapper.appendChild(btn);

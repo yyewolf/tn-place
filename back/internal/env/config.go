@@ -18,6 +18,11 @@ var Width int
 var Height int
 var ConnectionCount int
 var Timeout int
+var GoogleSecretPath string
+var GoogleRedirectURI string
+var GoogleRedirectFront string
+var CookieHost string
+var CookieSecret string
 
 func init() {
 	godotenv.Load()
@@ -27,6 +32,11 @@ func init() {
 	LoadPath = os.Getenv("LOAD")
 	SavePath = os.Getenv("SAVE")
 	LogPath = os.Getenv("LOG")
+	GoogleSecretPath = os.Getenv("GOOGLE_SECRET")
+	GoogleRedirectURI = os.Getenv("GOOGLE_REDIRECT_URI")
+	GoogleRedirectFront = os.Getenv("GOOGLE_REDIRECT_FRONT")
+	CookieHost = os.Getenv("COOKIE_HOST")
+	CookieSecret = os.Getenv("COOKIE_SECRET")
 	Width, err = strconv.Atoi(os.Getenv("WIDTH"))
 	if err != nil {
 		log.Fatal(err)
