@@ -1,17 +1,12 @@
 package auth
 
 import (
-	"context"
-	"encoding/json"
 	"net/http"
 	"tn-place/internal/env"
 
 	"github.com/gin-gonic/gin"
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/gothic"
-	"golang.org/x/oauth2"
-	admin "google.golang.org/api/admin/directory/v1"
-	"google.golang.org/api/option"
 )
 
 func callback(ctx *gin.Context) {
@@ -33,7 +28,7 @@ func callback(ctx *gin.Context) {
 		return
 	}
 
-	user, err := provider.FetchUser(sess)
+	_, err = provider.FetchUser(sess)
 	if err != nil {
 		params := ctx.Request.URL.Query()
 		if params.Encode() == "" && ctx.Request.Method == "POST" {
@@ -55,39 +50,37 @@ func callback(ctx *gin.Context) {
 			return
 		}
 
-		gu, err := provider.FetchUser(sess)
+		_, err := provider.FetchUser(sess)
 		if err != nil {
 			ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
 			return
 		}
-
-		user = gu
 	}
 
-	c := context.Background()
-	oconfig := &oauth2.Config{}
-	token, err := googleProvider.RefreshToken(user.RefreshToken)
-	if err != nil {
-		ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Error refreshing token"})
-		return
-	}
-	adminService, err := admin.NewService(c, option.WithTokenSource(oconfig.TokenSource(c, token)))
-	if err != nil {
-		ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
-		return
-	}
+	// c := context.Background()
+	// oconfig := &oauth2.Config{}
+	// token, err := googleProvider.RefreshToken(user.RefreshToken)
+	// if err != nil {
+	// 	ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Error refreshing token"})
+	// 	return
+	// }
+	// adminService, err := admin.NewService(c, option.WithTokenSource(oconfig.TokenSource(c, token)))
+	// if err != nil {
+	// 	ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
+	// 	return
+	// }
 
-	t, err := adminService.Users.Get(user.UserID).Projection("custom").CustomFieldMask("Education").ViewType("domain_public").Do()
-	if err != nil {
-		ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
-		return
-	}
-	edc := &Education{}
-	err = json.Unmarshal(t.CustomSchemas["Education"], edc)
-	if err != nil {
-		ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
-		return
-	}
+	// t, err := adminService.Users.Get(user.UserID).Projection("custom").CustomFieldMask("Education").ViewType("domain_public").Do()
+	// if err != nil {
+	// 	ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
+	// 	return
+	// }
+	// edc := &Education{}
+	// err = json.Unmarshal(t.CustomSchemas["Education"], edc)
+	// if err != nil {
+	// 	ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
+	// 	return
+	// }
 	// Saves to database
 
 	// alreadyRegistered, _ := services.GetUserByID(user.UserID)
