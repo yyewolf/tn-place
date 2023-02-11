@@ -19,8 +19,8 @@ func NewImage() draw.Image {
 	} else {
 		img = Load(env.LoadPath)
 
-		// If the image is not the correct size, expand or crop it
-		if img.Bounds().Dx() != env.Width || img.Bounds().Dy() != env.Height {
+		// If the image is not the correct size, expand it only
+		if img.Bounds().Dx() < env.Width || img.Bounds().Dy() < env.Height {
 			newimg := image.NewNRGBA(image.Rect(0, 0, env.Width, env.Height))
 			for i := range newimg.Pix {
 				newimg.Pix[i] = 255

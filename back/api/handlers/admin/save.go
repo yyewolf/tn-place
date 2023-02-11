@@ -1,4 +1,4 @@
-package internal
+package admin
 
 import (
 	"io/ioutil"

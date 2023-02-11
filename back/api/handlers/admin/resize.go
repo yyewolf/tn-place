@@ -1,9 +1,11 @@
-package internal
+package admin
 
 import (
 	"encoding/binary"
 	"image"
 	"image/draw"
+	"io/ioutil"
+	"tn-place/internal/env"
 	"tn-place/internal/server"
 
 	"github.com/gin-gonic/gin"
@@ -31,9 +33,13 @@ func resize(c *gin.Context) {
 		}
 		draw.Draw(newimg, newimg.Bounds(), img, image.Point{0, 0}, draw.Src)
 		server.Pl.Img = newimg
+		server.Pl.Imgbuf = nil
+		ioutil.WriteFile(env.SavePath, server.Pl.GetImageBytes(), 0644)
 	}
 
 	b := make([]byte, 32)
 	binary.LittleEndian.PutUint32(b, uint32(52))
 	server.Pl.Msgs <- b
+
+	c.JSON(200, gin.H{"message": "ok"})
 }
