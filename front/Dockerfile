@@ -6,5 +6,7 @@ COPY package*.json ./
 RUN npm install
 
 COPY . .
+RUN rm ./src/.env.development && rm ./src/.env.example && mv ./src/.env.production ./src/.env
 
-CMD [ "npm", "run", "dev" ]
+EXPOSE 5173
+CMD [ "npm", "run", "dev", "--", "--host" ]

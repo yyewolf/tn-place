@@ -1,5 +1,5 @@
 import { hexToRgb, secondFormat } from "./utils.js";
-import { setTimeout, getTimeout } from "./timeout.js";
+import { setTimeout as setTempTimeout, getTimeout } from "./timeout.js";
 
 export const GUI = (cvs, glWindow, gateway) => {
 	let color = new Uint8Array([0, 0, 0]);
@@ -14,7 +14,7 @@ export const GUI = (cvs, glWindow, gateway) => {
 
 	setInterval(() => {
 		if (getTimeout() > 0) {
-			setTimeout(getTimeout() - 1);
+			setTempTimeout(getTimeout() - 1);
 			document.querySelector("#timer-p").innerHTML = secondFormat(getTimeout());
 		} else {
 			document.querySelector("#timer-p").innerHTML = "";
@@ -145,7 +145,6 @@ export const GUI = (cvs, glWindow, gateway) => {
 		const movePos = { x: ev.clientX, y: ev.clientY };
 		if (dragdown) {
 			glWindow.move(movePos.x - lastMovePos.x, movePos.y - lastMovePos.y);
-
 			document.body.style.cursor = "grab";
 			glWindow.draw();
 		}
@@ -223,8 +222,9 @@ export const GUI = (cvs, glWindow, gateway) => {
 			// console.log("move");
 			// Add x and y to GET parameters
 			let url = new URL(window.location.href);
-			url.searchParams.set("x", glWindow.getOffset().x);
-			url.searchParams.set("y", glWindow.getOffset().y);
+			url.searchParams.set("x", glWindow.getPos().x);
+			url.searchParams.set("y", glWindow.getPos().y);
+			url.searchParams.set("z", glWindow.getZoom());
 			window.history.replaceState({}, "", url);
 		}
 	});

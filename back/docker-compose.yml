@@ -5,5 +5,8 @@ services:
     build: .
     env_file:
       - .env
+    volumes:
+      - ./google.json:/app/google.json
+      - ./place.png:/app/place.png
     ports:
       - 8080:8080

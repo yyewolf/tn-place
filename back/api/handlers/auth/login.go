@@ -18,7 +18,7 @@ import (
 var scopes = []string{
 	"https://www.googleapis.com/auth/userinfo.profile",
 	"https://www.googleapis.com/auth/userinfo.email",
-	"https://www.googleapis.com/auth/admin.directory.user.readonly",
+	// "https://www.googleapis.com/auth/admin.directory.user.readonly",
 }
 
 type Education struct {
@@ -53,7 +53,7 @@ func init() {
 	}
 
 	googleProvider = google.New(s.ClientID, s.ClientSecret, env.GoogleRedirectURI, scopes...)
-	googleProvider.SetHostedDomain("telecomnancy.net")
+	// googleProvider.SetHostedDomain("telecomnancy.net")
 	googleProvider.SetPrompt("consent")
 	googleProvider.SetAccessType("offline")
 	goth.UseProviders(
