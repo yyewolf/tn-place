@@ -7,7 +7,6 @@ import (
 	"tn-place/internal/env"
 
 	"github.com/gin-gonic/gin"
-	"github.com/gofrs/uuid"
 	"github.com/gorilla/sessions"
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/gothic"
@@ -33,11 +32,8 @@ var (
 )
 
 func init() {
-	token, err := uuid.NewV4()
-	if err != nil {
-		panic("impossible de générer une clé pour les cookies")
-	}
-	key := token.Bytes()
+	token := env.CookieSecret
+	key := []byte(token)
 	maxAge := 86400 * 30 // 30 days cookie
 
 	store := sessions.NewCookieStore(key)

@@ -4,7 +4,6 @@ go 1.20
 
 require (
 	github.com/gin-gonic/gin v1.8.2
-	github.com/gofrs/uuid v4.4.0+incompatible
 	github.com/gorilla/sessions v1.2.1
 	github.com/gorilla/websocket v1.5.0
 	github.com/joho/godotenv v1.5.1
