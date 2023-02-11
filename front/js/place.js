@@ -11,6 +11,14 @@ let listeners = [
         (b) => {
             handleSocketSetTimeout(b);
         }
+    ],
+    [
+        "refresh",
+        (b) => {
+            if (b.byteLength == 32) {
+                loadBaseImage(glWindow);
+            }
+        }
     ]
 ]
 

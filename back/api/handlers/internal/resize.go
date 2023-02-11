@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"encoding/binary"
 	"image"
 	"image/draw"
 	"tn-place/internal/server"
@@ -31,4 +32,8 @@ func resize(c *gin.Context) {
 		draw.Draw(newimg, newimg.Bounds(), img, image.Point{0, 0}, draw.Src)
 		server.Pl.Img = newimg
 	}
+
+	b := make([]byte, 32)
+	binary.LittleEndian.PutUint32(b, uint32(52))
+	server.Pl.Msgs <- b
 }
