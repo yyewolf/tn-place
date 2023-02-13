@@ -86,7 +86,36 @@ func (pl *Place) GetImageBytes() []byte {
 	return pl.Imgbuf
 }
 
+var colorPalette = []color.RGBA{
+	{0, 0, 0, 255},
+	{0, 0, 255, 255},
+	{0, 255, 0, 255},
+	{0, 255, 255, 255},
+	{255, 0, 0, 255},
+	{255, 0, 255, 255},
+	{255, 255, 0, 255},
+	{255, 255, 255, 255},
+	{128, 128, 128, 255},
+	{0, 0, 128, 255},
+	{0, 128, 0, 255},
+	{0, 128, 128, 255},
+	{128, 0, 0, 255},
+	{128, 0, 128, 255},
+	{128, 128, 0, 255},
+	{192, 192, 192, 255},
+}
+
 func (pl *Place) SetPixel(x, y int, c color.Color) bool {
+	// If the color is not in the 16-bit palette, return false.
+	R, G, B, A := c.RGBA()
+	for _, color := range colorPalette {
+		if color.R == uint8(R>>8) && color.G == uint8(G>>8) && color.B == uint8(B>>8) && color.A == uint8(A>>8) {
+			goto found
+		}
+	}
+	return false
+found:
+
 	rect := pl.Img.Bounds()
 	width := rect.Max.X - rect.Min.X
 	height := rect.Max.Y - rect.Min.Y
