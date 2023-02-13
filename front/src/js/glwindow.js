@@ -28,12 +28,13 @@ const viewportVertexShaderSource = `
 const viewportFragmentShaderSource = `
 	precision mediump float;
 	uniform sampler2D tex;
+	uniform vec2 tex_size;
 	varying vec2 uv;
 	uniform vec2 mouse;
 	void main() {
 		vec4 pixel_color = texture2D(tex, uv);
 		if (pixel_color.a < 1.0) {
-			vec2 pixel_coord = fract(uv * 500.0);
+			vec2 pixel_coord = fract(vec2(uv.x * tex_size.x, uv.y * tex_size.y));
 			if (pixel_coord.x <= 0.08 || pixel_coord.x >= 0.93 || pixel_coord.y <= 0.08 || pixel_coord.y >= 0.93) {
 				if (pixel_color.x == 0.0 && pixel_color.y == 0.0 && pixel_color.z == 0.0) {
 					pixel_color = vec4(0.6, 0.6, 0.6, 1.0);
@@ -61,6 +62,7 @@ export class GLWindow {
 	#u_tex;
 	#u_view;
 	#a_vert;
+	#u_size;
 
 	constructor(cvs) {
 		this.#cvs = cvs;
@@ -94,6 +96,7 @@ export class GLWindow {
 	}
 
 	setTexture(img) {
+		this.#gl.uniform2f(this.#u_size, img.width, img.height);
 		this.#tex = this.#gl.createTexture();
 		this.#gl.bindTexture(this.#gl.TEXTURE_2D, this.#tex);
 		this.#gl.texParameteri(this.#gl.TEXTURE_2D, this.#gl.TEXTURE_WRAP_S, this.#gl.CLAMP_TO_EDGE);
@@ -252,5 +255,6 @@ export class GLWindow {
 		this.#u_tex = this.#gl.getUniformLocation(this.#program, 'tex_scale');
 		this.#u_view = this.#gl.getUniformLocation(this.#program, 'view_scale');
 		this.#u_zoom = this.#gl.getUniformLocation(this.#program, 'zoom');
+		this.#u_size = this.#gl.getUniformLocation(this.#program, 'tex_size');
 	}
 }
