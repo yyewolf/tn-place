@@ -29,8 +29,20 @@ const viewportFragmentShaderSource = `
 	precision mediump float;
 	uniform sampler2D tex;
 	varying vec2 uv;
+	uniform vec2 mouse;
 	void main() {
-		gl_FragColor = texture2D(tex, uv);
+		vec4 pixel_color = texture2D(tex, uv);
+		if (pixel_color.a < 1.0) {
+			vec2 pixel_coord = fract(uv * 500.0);
+			if (pixel_coord.x <= 0.08 || pixel_coord.x >= 0.93 || pixel_coord.y <= 0.08 || pixel_coord.y >= 0.93) {
+				if (pixel_color.x == 0.0 && pixel_color.y == 0.0 && pixel_color.z == 0.0) {
+					pixel_color = vec4(0.6, 0.6, 0.6, 1.0);
+				} else {
+					pixel_color = vec4(0.0, 0.0, 0.0, 1.0);
+				}
+			}
+		}
+		gl_FragColor = pixel_color;
 	}
 `;
 
@@ -113,7 +125,7 @@ export class GLWindow {
 
 	setPixelBorder(x, y, color) {
 		let rgba = new Uint8Array(4);
-		rgba[3] = 125;
+		rgba[3] = 254;
 		for (let i = 0; i < color.length; i++) {
 			rgba[i] = color[i];
 		}

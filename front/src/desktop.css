@@ -166,8 +166,9 @@ body {
 		position: absolute;
 		bottom: 64px;
 		left: 50%;
-		font-size: 1.4em;
+		font-size: 2.4em;
 		transform: translate(-50%, 0%);
+		text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff;
 	}
 }
 
@@ -185,8 +186,9 @@ body {
 		position: absolute;
 		bottom: 150px;
 		left: 50%;
-		font-size: 1.4em;
+		font-size: 2.4em;
 		transform: translate(-50%, 0%);
+		text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff;
 	}
 }
 
@@ -216,4 +218,10 @@ body {
 .inside-square-selected {
 	border: 2px solid #fff;
 	box-shadow: 0 0 0 2px #000;
+}
+
+#popup {
+	position: absolute;
+	background-color: #ffffff;
+	border: 1px solid #000;
 }

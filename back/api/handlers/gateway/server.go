@@ -13,6 +13,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
+	"github.com/markbates/goth"
 )
 
 var upgrader = websocket.Upgrader{
@@ -47,10 +48,10 @@ func GetGateway(c *gin.Context) {
 	go readLoop(conn, i, c, ch)
 	go writeLoop(conn, ch)
 
-	waiterID := c.MustGet("user_id").(string)
+	gUser := c.MustGet("user").(*goth.User)
 
 	// Send timer to client
-	w, ok := waiter[waiterID]
+	w, ok := waiter[gUser.UserID]
 	if !ok {
 		return
 	}
@@ -66,7 +67,8 @@ func GetGateway(c *gin.Context) {
 var waiter = make(map[string]time.Time)
 
 func readLoop(conn *websocket.Conn, i int, c *gin.Context, ch chan []byte) {
-	waiterID := c.MustGet("user_id").(string)
+	gUser := c.MustGet("user").(*goth.User)
+	waiterID := gUser.UserID
 	limiter := rateLimiter()
 	for {
 		_, p, err := conn.ReadMessage()
@@ -90,6 +92,7 @@ func readLoop(conn *websocket.Conn, i int, c *gin.Context, ch chan []byte) {
 		// Log
 		x, y, color := parseEvent(p)
 		log.Printf("[PLACE] User %s placed pixel at (%d, %d) with color %v\n", waiterID, x, y, color)
+		server.Pl.Canva.Placers[x][y] = gUser.Email
 		// User has to wait 60 seconds before setting another pixel
 		waiter[waiterID] = time.Now().Add(time.Second * time.Duration(env.Timeout))
 		b := make([]byte, 8)

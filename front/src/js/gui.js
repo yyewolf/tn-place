@@ -1,6 +1,8 @@
 import { hexToRgb, secondFormat } from "./utils.js";
 import { setTimeout as setTempTimeout, getTimeout } from "./timeout.js";
 
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+
 export const GUI = (cvs, glWindow, gateway) => {
 	let color = new Uint8Array([0, 0, 0]);
 	let dragdown = false;
@@ -11,6 +13,8 @@ export const GUI = (cvs, glWindow, gateway) => {
 	let lastScalingDist = 0;
 	let touchstartTime;
 	let outline = {x: 0, y:0, originalColor: new Uint8Array([0, 0, 0])}
+	let popup = document.querySelector("#popup");
+	let tooltipDelay;
 
 	setInterval(() => {
 		if (getTimeout() > 0) {
@@ -49,6 +53,12 @@ export const GUI = (cvs, glWindow, gateway) => {
 		btn.appendChild(inside);
 		colorWrapper.appendChild(btn);
 	}
+
+	// prevent clicks on color wrapper from propagating to canvas
+	colorWrapper.addEventListener("click", (e) => {
+		e.preventDefault();
+	});
+
 
 	// ***************************************************
 	// ***************************************************
@@ -150,16 +160,41 @@ export const GUI = (cvs, glWindow, gateway) => {
 		}
 		lastMovePos = movePos;
 
-		// Handle outline
-		let color = glWindow.getColor(outline);
-		glWindow.setPixelColor(outline.x+0.5, outline.y+0.5, color);
+		// Hide tooltip
+		popup.style.display = "none";
 
-		let pos = glWindow.click({ x: ev.clientX, y: ev.clientY });
-		outline = {x: pos.x, y: pos.y}
-		outline.x = Math.floor(outline.x);
-		outline.y = Math.floor(outline.y);
-		color = glWindow.getColor(outline);
-		glWindow.setPixelBorder(outline.x, outline.y, color);
+		// Handle outline if mouse is over canvas
+		try {
+			let color = glWindow.getColor(outline);
+			glWindow.setPixelColor(outline.x+0.5, outline.y+0.5, color);
+
+			let pos = glWindow.click({ x: ev.clientX, y: ev.clientY });
+			outline = {x: pos.x, y: pos.y}
+			outline.x = Math.floor(outline.x);
+			outline.y = Math.floor(outline.y);
+			color = glWindow.getColor(outline);
+			glWindow.setPixelBorder(outline.x, outline.y, color);
+
+			if (tooltipDelay) {
+				clearTimeout(tooltipDelay);
+			}
+			tooltipDelay = setTimeout(() => {
+				tooltipDelay = null;
+				// Move popup to mouse position
+				popup.style.left = ev.clientX + 10 + "px";
+				popup.style.top = ev.clientY + 10 + "px";
+
+				// Get popup text from server
+				fetch(BACKEND_URL + "pixel/" + outline.x + "/" + outline.y + "/")
+					.then(res => res.json())
+					.then(data => {
+						popup.innerHTML = data.placer;
+						popup.style.display = "block";
+					})
+			}, 500);
+		} catch (e) {
+			// ignore
+		}
 		glWindow.draw();
 	});
 

@@ -7,6 +7,7 @@ import (
 	"tn-place/api/handlers/auth"
 	"tn-place/api/handlers/gateway"
 	"tn-place/api/handlers/image"
+	"tn-place/api/handlers/pixel"
 	"tn-place/api/handlers/status"
 	"tn-place/internal/canva"
 	"tn-place/internal/env"
@@ -19,14 +20,15 @@ func Route(engine *gin.Engine) {
 	path := engine.Group("/")
 
 	// Create image
-	img := canva.NewImage()
+	cv := canva.NewImage()
 
-	pl := server.NewServer(img, env.ConnectionCount)
+	pl := server.NewServer(cv, env.ConnectionCount)
 	// Watch dog for saving image
 	defer ioutil.WriteFile(env.SavePath, pl.GetImageBytes(), 0644)
 	go func() {
 		for {
 			ioutil.WriteFile(env.SavePath, pl.GetImageBytes(), 0644)
+			canva.SavePlacers(pl.Canva.Placers)
 			time.Sleep(time.Second * time.Duration(env.SaveInterval))
 		}
 	}()
@@ -37,4 +39,5 @@ func Route(engine *gin.Engine) {
 	gateway.LoadRoutes(path)
 	auth.LoadRoutes(path)
 	admin.LoadRoutes(path)
+	pixel.LoadRoutes(path)
 }

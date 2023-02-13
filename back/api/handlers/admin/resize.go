@@ -5,6 +5,7 @@ import (
 	"image"
 	"image/draw"
 	"io/ioutil"
+	"tn-place/internal/canva"
 	"tn-place/internal/env"
 	"tn-place/internal/server"
 
@@ -24,7 +25,7 @@ func resize(c *gin.Context) {
 		return
 	}
 
-	img := server.Pl.Img
+	img := server.Pl.Canva.Image
 	// If the image is not the correct size, expand or crop it
 	if img.Bounds().Dx() != r.Width || img.Bounds().Dy() != r.Height {
 		newimg := image.NewNRGBA(image.Rect(0, 0, r.Width, r.Height))
@@ -32,9 +33,22 @@ func resize(c *gin.Context) {
 			newimg.Pix[i] = 255
 		}
 		draw.Draw(newimg, newimg.Bounds(), img, image.Point{0, 0}, draw.Src)
-		server.Pl.Img = newimg
+		server.Pl.Canva.Image = newimg
 		server.Pl.Imgbuf = nil
 		ioutil.WriteFile(env.SavePath, server.Pl.GetImageBytes(), 0644)
+
+		// Resize placers
+		newplacers := make([][]string, r.Width)
+		for i := range newplacers {
+			newplacers[i] = make([]string, r.Height)
+		}
+		for x := 0; x < img.Bounds().Dx(); x++ {
+			for y := 0; y < img.Bounds().Dy(); y++ {
+				newplacers[x][y] = server.Pl.Canva.Placers[x][y]
+			}
+		}
+		server.Pl.Canva.Placers = newplacers
+		canva.SavePlacers(newplacers)
 	}
 
 	b := make([]byte, 32)

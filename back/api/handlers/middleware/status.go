@@ -21,6 +21,6 @@ func SetStatus() gin.HandlerFunc {
 
 		ctx.Set("is_logged_in", true)
 		ctx.Set("user_id", gu.UserID)
-		ctx.Set("user", gu)
+		ctx.Set("user", &gu)
 	}
 }

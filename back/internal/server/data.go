@@ -3,10 +3,10 @@ package server
 import (
 	"bytes"
 	"image/color"
-	"image/draw"
 	"image/png"
 	"log"
 	"sync"
+	"tn-place/internal/canva"
 )
 
 type Place struct {
@@ -14,19 +14,19 @@ type Place struct {
 	Msgs    chan []byte
 	Close   chan int
 	Clients []chan []byte
-	Img     draw.Image
+	Canva   *canva.Canva
 	Imgbuf  []byte
 }
 
 var Pl *Place
 
-func NewServer(img draw.Image, count int) *Place {
+func NewServer(cv *canva.Canva, count int) *Place {
 	pl := &Place{
 		RWMutex: sync.RWMutex{},
 		Msgs:    make(chan []byte),
 		Close:   make(chan int),
 		Clients: make([]chan []byte, count),
-		Img:     img,
+		Canva:   cv,
 	}
 	go pl.broadcastLoop()
 	return pl
@@ -78,7 +78,7 @@ func (pl *Place) broadcastLoop() {
 func (pl *Place) GetImageBytes() []byte {
 	if pl.Imgbuf == nil {
 		buf := bytes.NewBuffer(nil)
-		if err := png.Encode(buf, pl.Img); err != nil {
+		if err := png.Encode(buf, pl.Canva.Image); err != nil {
 			log.Println(err)
 		}
 		pl.Imgbuf = buf.Bytes()
@@ -116,13 +116,13 @@ func (pl *Place) SetPixel(x, y int, c color.Color) bool {
 	return false
 found:
 
-	rect := pl.Img.Bounds()
+	rect := pl.Canva.Image.Bounds()
 	width := rect.Max.X - rect.Min.X
 	height := rect.Max.Y - rect.Min.Y
 	if 0 > x || x >= width || 0 > y || y >= height {
 		return false
 	}
-	pl.Img.Set(x, y, c)
+	pl.Canva.Image.Set(x, y, c)
 	pl.Imgbuf = nil
 	return true
 }
