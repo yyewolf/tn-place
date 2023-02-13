@@ -75,18 +75,21 @@ func readLoop(conn *websocket.Conn, i int, c *gin.Context, ch chan []byte) {
 			break
 		}
 		if !limiter() {
-			fmt.Println("Client kicked for high rate.")
+			log.Printf("[ERR] %s got recked by rate limiter.\n", waiterID)
 			break
 		}
 		w, ok := waiter[waiterID]
 		if ok && w.After(time.Now()) {
-			fmt.Println("Ignored for timeout.")
+			log.Printf("[ERR] %s was ignored due to timeout.\n", waiterID)
 			continue
 		}
 		if messageHandler(p) != nil {
-			fmt.Println("Client kicked for bad message.")
+			log.Printf("[ERR] %s sent a bad message.\n", waiterID)
 			break
 		}
+		// Log
+		x, y, color := parseEvent(p)
+		log.Printf("[PLACE] User %s placed pixel at (%d, %d) with color %v\n", waiterID, x, y, color)
 		// User has to wait 60 seconds before setting another pixel
 		waiter[waiterID] = time.Now().Add(time.Second * time.Duration(env.Timeout))
 		b := make([]byte, 8)
