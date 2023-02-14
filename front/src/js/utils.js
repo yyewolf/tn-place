@@ -24,6 +24,6 @@ export function hexToRgb(hex) {
 
 export function secondFormat(seconds) {
 	let minutes = Math.floor(seconds / 60);
-	let secs = seconds % 60;
+	let secs = (seconds % 60)+1;
 	return minutes + ":" + (secs < 10 ? "0" : "") + secs;
 }

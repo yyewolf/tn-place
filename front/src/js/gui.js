@@ -4,7 +4,7 @@ import { setTimeout as setTempTimeout, getTimeout } from "./timeout.js";
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 export const GUI = (cvs, glWindow, gateway) => {
-	let color = new Uint8Array([0, 0, 0]);
+	let color = new Uint8Array([242, 243, 244]);
 	let dragdown = false;
 	let touchID = 0;
 	let touchScaling = false;
@@ -12,7 +12,7 @@ export const GUI = (cvs, glWindow, gateway) => {
 	let lastWindowPos = { x: 0, y: 0 };
 	let lastScalingDist = 0;
 	let touchstartTime;
-	let outline = {x: 0, y:0, originalColor: new Uint8Array([0, 0, 0])}
+	let outline = { x: 0, y: 0, originalColor: new Uint8Array([0, 0, 0]) }
 	let popup = document.querySelector("#popup");
 	let tooltipDelay;
 
@@ -26,38 +26,48 @@ export const GUI = (cvs, glWindow, gateway) => {
 	}, 1000);
 
 	const colorWrapper = document.querySelector("#color-wrapper");
+	const picker = document.querySelector("#color-picker");
 
-	// fill colors
-	let sixteenColorsPalette = ["#000000", "#0000FF", "#00FF00", "#00FFFF", "#FF0000", "#FF00FF", "#FFFF00", "#FFFFFF", "#808080", "#000080", "#008000", "#008080", "#800000", "#800080", "#808000", "#C0C0C0"];
-	// <input type="button" class="color-square">
-	// <div class="inside-square" style="background-color: #000000;"></div>
-	// </input>
-	for (let i = 0; i < 16; i++) {
-		let btn = document.createElement("div");
-		let inside = document.createElement("input");
-		inside.type = "button";
-		btn.classList.add("color-square");
-		inside.classList.add("inside-square");
-		if (i == 0) inside.classList.add("inside-square-selected");
-		inside.style.backgroundColor = sixteenColorsPalette[i];
-		btn.addEventListener("click", (e) => {
-			e.preventDefault();
-			let rgb = hexToRgb(sixteenColorsPalette[i]);
-			color[0] = rgb.r;
-			color[1] = rgb.g;
-			color[2] = rgb.b;
-			inside.style.backgroundColor = sixteenColorsPalette[i];
-			document.querySelector(".inside-square-selected").classList.remove("inside-square-selected");
-			inside.classList.add("inside-square-selected");
-		});
-		btn.appendChild(inside);
-		colorWrapper.appendChild(btn);
-	}
+	// // fill colors
+	// let sixteenColorsPalette = ["#000000", "#0000FF", "#00FF00", "#00FFFF", "#FF0000", "#FF00FF", "#FFFF00", "#FFFFFF", "#808080", "#000080", "#008000", "#008080", "#800000", "#800080", "#808000", "#C0C0C0"];
+	// // <input type="button" class="color-square">
+	// // <div class="inside-square" style="background-color: #000000;"></div>
+	// // </input>
+	// for (let i = 0; i < 16; i++) {
+	// 	let btn = document.createElement("div");
+	// 	let inside = document.createElement("input");
+	// 	inside.type = "button";
+	// 	btn.classList.add("color-square");
+	// 	inside.classList.add("inside-square");
+	// 	if (i == 0) inside.classList.add("inside-square-selected");
+	// 	inside.style.backgroundColor = sixteenColorsPalette[i];
+	// 	btn.addEventListener("click", (e) => {
+	// 		e.preventDefault();
+	// 		let rgb = hexToRgb(sixteenColorsPalette[i]);
+	// 		color[0] = rgb.r;
+	// 		color[1] = rgb.g;
+	// 		color[2] = rgb.b;
+	// 		inside.style.backgroundColor = sixteenColorsPalette[i];
+	// 		document.querySelector(".inside-square-selected").classList.remove("inside-square-selected");
+	// 		inside.classList.add("inside-square-selected");
+	// 	});
+	// 	btn.appendChild(inside);
+	// 	colorWrapper.appendChild(btn);
+	// }
 
 	// prevent clicks on color wrapper from propagating to canvas
 	colorWrapper.addEventListener("click", (e) => {
-		e.preventDefault();
+		// trigger color picker
+		picker.click();
 	});
+
+	picker.addEventListener("input", (e) => {
+		let rgb = hexToRgb(picker.value);
+		color[0] = rgb.r;
+		color[1] = rgb.g;
+		color[2] = rgb.b;
+	});
+
 
 
 	// ***************************************************
@@ -89,7 +99,7 @@ export const GUI = (cvs, glWindow, gateway) => {
 
 		glWindow.setZoom(zoom);
 		glWindow.draw();
-		
+
 		let url = new URL(window.location.href);
 		url.searchParams.set("x", glWindow.getPos().x);
 		url.searchParams.set("y", glWindow.getPos().y);
@@ -130,7 +140,7 @@ export const GUI = (cvs, glWindow, gateway) => {
 		}
 	});
 
-	document.addEventListener("mouseup", (ev) => {
+	cvs.addEventListener("mouseup", (ev) => {
 		dragdown = false;
 		document.body.style.cursor = "auto";
 
@@ -166,10 +176,10 @@ export const GUI = (cvs, glWindow, gateway) => {
 		// Handle outline if mouse is over canvas
 		try {
 			let color = glWindow.getColor(outline);
-			glWindow.setPixelColor(outline.x+0.5, outline.y+0.5, color);
+			glWindow.setPixelColor(outline.x + 0.5, outline.y + 0.5, color);
 
 			let pos = glWindow.click({ x: ev.clientX, y: ev.clientY });
-			outline = {x: pos.x, y: pos.y}
+			outline = { x: pos.x, y: pos.y }
 			outline.x = Math.floor(outline.x);
 			outline.y = Math.floor(outline.y);
 			color = glWindow.getColor(outline);
@@ -221,7 +231,7 @@ export const GUI = (cvs, glWindow, gateway) => {
 		window.history.replaceState({}, "", url);
 	});
 
-	document.addEventListener("touchend", (ev) => {
+	cvs.addEventListener("touchend", (ev) => {
 		touchID++;
 		let elapsed = (new Date()).getTime() - touchstartTime;
 		if (elapsed < 100) {
@@ -274,8 +284,7 @@ export const GUI = (cvs, glWindow, gateway) => {
 			if (d.length == 1) d = "0" + d;
 			hex += d;
 		}
-		colorField.value = hex.toUpperCase();
-		colorSwatch.style.backgroundColor = hex;
+		picker.value = hex;
 	}
 
 	const drawPixel = (pos, color) => {
@@ -298,7 +307,7 @@ export const GUI = (cvs, glWindow, gateway) => {
 	const zoomIn = (factor) => {
 		let zoom = glWindow.getZoom();
 		glWindow.setZoom(zoom * factor);
-		
+
 		let url = new URL(window.location.href);
 		url.searchParams.set("x", glWindow.getPos().x);
 		url.searchParams.set("y", glWindow.getPos().y);
@@ -311,7 +320,7 @@ export const GUI = (cvs, glWindow, gateway) => {
 	const zoomOut = (factor) => {
 		let zoom = glWindow.getZoom();
 		glWindow.setZoom(zoom / factor);
-		
+
 		let url = new URL(window.location.href);
 		url.searchParams.set("x", glWindow.getPos().x);
 		url.searchParams.set("y", glWindow.getPos().y);

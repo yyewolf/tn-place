@@ -86,35 +86,44 @@ func (pl *Place) GetImageBytes() []byte {
 	return pl.Imgbuf
 }
 
-var colorPalette = []color.RGBA{
-	{0, 0, 0, 255},
-	{0, 0, 255, 255},
-	{0, 255, 0, 255},
-	{0, 255, 255, 255},
-	{255, 0, 0, 255},
-	{255, 0, 255, 255},
-	{255, 255, 0, 255},
-	{255, 255, 255, 255},
-	{128, 128, 128, 255},
-	{0, 0, 128, 255},
-	{0, 128, 0, 255},
-	{0, 128, 128, 255},
-	{128, 0, 0, 255},
-	{128, 0, 128, 255},
-	{128, 128, 0, 255},
-	{192, 192, 192, 255},
-}
+// colorPalette = ['#F2F3F4', '#222222', '#F3C300', '#875692', '#F38400', '#A1CAF1', '#BE0032', '#C2B280', '#848482', '#008856', '#E68FAC', '#0067A5', '#F99379', '#604E97', '#F6A600', '#B3446C', '#DCD300', '#882D17', '#8DB600', '#654522', '#E25822', '#2B3D26'];
+
+// var colorPalette = []color.Color{
+// 	color.RGBA{242, 243, 244, 255},
+// 	color.RGBA{34, 34, 34, 255},
+// 	color.RGBA{243, 195, 0, 255},
+// 	color.RGBA{135, 86, 146, 255},
+// 	color.RGBA{243, 132, 0, 255},
+// 	color.RGBA{161, 202, 241, 255},
+// 	color.RGBA{190, 0, 50, 255},
+// 	color.RGBA{194, 178, 128, 255},
+// 	color.RGBA{132, 132, 130, 255},
+// 	color.RGBA{0, 136, 86, 255},
+// 	color.RGBA{230, 143, 172, 255},
+// 	color.RGBA{0, 103, 165, 255},
+// 	color.RGBA{249, 147, 121, 255},
+// 	color.RGBA{96, 78, 151, 255},
+// 	color.RGBA{246, 166, 0, 255},
+// 	color.RGBA{179, 68, 108, 255},
+// 	color.RGBA{220, 211, 0, 255},
+// 	color.RGBA{136, 45, 23, 255},
+// 	color.RGBA{141, 182, 0, 255},
+// 	color.RGBA{101, 69, 34, 255},
+// 	color.RGBA{226, 88, 34, 255},
+// 	color.RGBA{43, 61, 38, 255},
+// }
 
 func (pl *Place) SetPixel(x, y int, c color.Color) bool {
 	// If the color is not in the 16-bit palette, return false.
-	R, G, B, A := c.RGBA()
-	for _, color := range colorPalette {
-		if color.R == uint8(R>>8) && color.G == uint8(G>>8) && color.B == uint8(B>>8) && color.A == uint8(A>>8) {
-			goto found
-		}
-	}
-	return false
-found:
+	// 	r, g, b, a := c.RGBA()
+	// 	for _, color := range colorPalette {
+	// 		R, G, B, A := color.RGBA()
+	// 		if r == R && g == G && b == B && a == A {
+	// 			goto found
+	// 		}
+	// 	}
+	// 	return false
+	// found:
 
 	rect := pl.Canva.Image.Bounds()
 	width := rect.Max.X - rect.Min.X

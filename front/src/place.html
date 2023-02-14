@@ -16,6 +16,8 @@
 		<p id="loading-p"></p>
 		<p id="timer-p"></p>
 		<div id="color-wrapper">
+			<!-- Color picker -->
+			<input id="color-picker" type="color">
 		</div>
 		<div id="popup">
 		</div>
@@ -53,6 +55,8 @@
 		document.querySelector('#close-help-popup').onclick = (e) => {
 			document.querySelector('#help-popup').style.visibility = 'hidden';
 			e.preventDefault();
+			e.stopImmediatePropagation();
+			e.stopPropagation();
 		}
 	</script>
 </body>
