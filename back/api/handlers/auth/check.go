@@ -40,6 +40,7 @@ func check(ctx *gin.Context) {
 		if err == nil {
 			s.AccessToken = token.AccessToken
 			s.RefreshToken = token.RefreshToken
+			s.ExpiresAt = token.Expiry
 			gothic.StoreInSession(provider.Name(), sess.Marshal(), ctx.Request, ctx.Writer)
 		}
 
@@ -56,13 +57,6 @@ func check(ctx *gin.Context) {
 		// }
 		ctx.JSON(http.StatusOK, gin.H{"user": user, "logged": true})
 		return
-	}
-
-	token, err := provider.RefreshToken(user.RefreshToken)
-	if err == nil {
-		user.AccessToken = token.AccessToken
-		user.RefreshToken = token.RefreshToken
-		gothic.StoreInSession(provider.Name(), sess.Marshal(), ctx.Request, ctx.Writer)
 	}
 
 	// u, err := services.GetUserByID(user.UserID)

@@ -12,6 +12,7 @@ import (
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/gothic"
 	"github.com/markbates/goth/providers/google"
+	"golang.org/x/oauth2"
 	ogoogle "golang.org/x/oauth2/google"
 	"google.golang.org/api/people/v1"
 )
@@ -142,26 +143,15 @@ func GetUser(ctx *gin.Context) (user goth.User, err error) {
 
 	user, err = provider.FetchUser(sess)
 	if err != nil {
-		fmt.Println("f1:", err)
-		params := ctx.Request.URL.Query()
-		if params.Encode() == "" && ctx.Request.Method == "POST" {
-			ctx.Request.ParseForm()
-			params = ctx.Request.Form
-		}
+		s := sess.(*google.Session)
+		var token *oauth2.Token
 
-		// get new token and retry fetch
-		_, err = sess.Authorize(provider, params)
-		if err != nil {
-			fmt.Println("r:", err)
-			ctx.AbortWithStatusJSON(http.StatusOK, gin.H{"logged": false})
-			return
-		}
-
-		err = gothic.StoreInSession(provider.Name(), sess.Marshal(), ctx.Request, ctx.Writer)
-		if err != nil {
-			fmt.Println("s:", err)
-			ctx.AbortWithStatusJSON(http.StatusOK, gin.H{"logged": false})
-			return
+		token, err = provider.RefreshToken(s.RefreshToken)
+		if err == nil {
+			s.AccessToken = token.AccessToken
+			s.RefreshToken = token.RefreshToken
+			s.ExpiresAt = token.Expiry
+			gothic.StoreInSession(provider.Name(), sess.Marshal(), ctx.Request, ctx.Writer)
 		}
 
 		user, err = provider.FetchUser(sess)
@@ -172,11 +162,5 @@ func GetUser(ctx *gin.Context) (user goth.User, err error) {
 		}
 	}
 
-	token, err := provider.RefreshToken(user.RefreshToken)
-	if err == nil {
-		user.AccessToken = token.AccessToken
-		user.RefreshToken = token.RefreshToken
-		gothic.StoreInSession(provider.Name(), sess.Marshal(), ctx.Request, ctx.Writer)
-	}
 	return
 }
