@@ -4,7 +4,7 @@ import { setTimeout as setTempTimeout, getTimeout } from "./timeout.js";
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 export const GUI = (cvs, glWindow, gateway) => {
-	let color = new Uint8Array([242, 243, 244]);
+	let color = new Uint8Array([0, 0, 0]);
 	let dragdown = false;
 	let touchID = 0;
 	let touchScaling = false;
