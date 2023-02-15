@@ -103,6 +103,12 @@ func readLoop(conn *websocket.Conn, i int, c *gin.Context, ch chan []byte) {
 }
 
 func writeLoop(conn *websocket.Conn, ch chan []byte) {
+	// Send amount of clients to all clients
+	b := make([]byte, 4)
+	binary.BigEndian.PutUint32(b, uint32(server.Pl.ClientAmount()))
+	conn.WriteMessage(websocket.BinaryMessage, b)
+	server.Pl.Msgs <- b
+
 	for {
 		if p, ok := <-ch; ok {
 			conn.WriteMessage(websocket.BinaryMessage, p)
@@ -110,7 +116,12 @@ func writeLoop(conn *websocket.Conn, ch chan []byte) {
 			break
 		}
 	}
+
 	conn.Close()
+
+	b = make([]byte, 4)
+	binary.BigEndian.PutUint32(b, uint32(server.Pl.ClientAmount()))
+	server.Pl.Msgs <- b
 }
 
 func messageHandler(p []byte) error {

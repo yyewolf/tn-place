@@ -2,7 +2,7 @@ import { Gateway } from "./gateway";
 import { GLWindow } from "./glwindow";
 import { loadBaseImage } from "./image";
 import { GUI } from "./gui";
-import { handleSocketSetPixel, handleSocketSetTimeout } from "./messages";
+import { handleSocketSetPixel, handleSocketSetTimeout, handleSocketStatus } from "./messages";
 
 // this is the listener
 let listeners = [
@@ -18,6 +18,12 @@ let listeners = [
             if (b.byteLength == 32) {
                 loadBaseImage(glWindow);
             }
+        }
+    ],
+    [
+        "status",
+        (b) => {
+            handleSocketStatus(b);
         }
     ]
 ]

@@ -15,3 +15,11 @@ export function handleSocketSetTimeout(b) {
     let timeout = getUint64(b, 0);
     setTimeout(timeout);
 }
+
+export function handleSocketStatus(b) {
+    if (b.byteLength != 4) return
+    let clients = getUint32(b, 0);
+    let s = document.querySelector("#status-p")
+    s.innerText = clients + " en ligne";
+    s.style.visibility = "visible";
+}
