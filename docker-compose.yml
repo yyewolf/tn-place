@@ -1,0 +1,30 @@
+version: '3.5'
+
+services:
+  place:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    environment:
+      - PORT=:80
+      - LOAD=place.png
+      - SAVE=place.png
+      - SAVE_INTERVAL=180
+      - LOG=log.txt
+      - WIDTH=1024
+      - HEIGHT=1024
+      - COUNT=64
+      - TIMEOUT=5
+      - GOOGLE_SECRET=google.json
+      - GOOGLE_REDIRECT_URI=http://localhost:8080/auth/callback
+      - GOOGLE_REDIRECT_FRONT=http://localhost:8080/place.html
+      - COOKIE_HOST=localhost
+      - COOKIE_SECRET=Sup3rS3cr3t
+      - INTERNAL_SECRET=Sup3rS3cr3t1222
+    ports:
+      - 8080:80
+    volumes:
+      - ./back/google.json:/app/google.json
+      - ./back/log.txt:/app/log.txt
+      - ./back/place.png:/app/place.png
+      - ./back/place.json:/app/place.json

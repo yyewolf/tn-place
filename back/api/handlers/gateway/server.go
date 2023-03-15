@@ -34,7 +34,7 @@ func GetGateway(c *gin.Context) {
 	i := server.Pl.GetConnIndex()
 	if i == -1 {
 		log.Println("Server full.")
-		http.Error(c.Writer, "Server full.", 503)
+		http.Error(c.Writer, "Server full.", http.StatusServiceUnavailable)
 		return
 	}
 	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
@@ -55,7 +55,7 @@ func GetGateway(c *gin.Context) {
 	if !ok {
 		return
 	}
-	s := w.Sub(time.Now()).Seconds()
+	s := time.Until(w).Seconds()
 	if s < 0 {
 		s = 0
 	}
@@ -85,7 +85,6 @@ func readLoop(conn *websocket.Conn, i int, c *gin.Context, ch chan []byte) {
 			log.Printf("[ERR] %s was ignored due to timeout.\n", waiterID)
 			continue
 		}
-		continue
 		if messageHandler(p) != nil {
 			log.Printf("[ERR] %s sent a bad message.\n", waiterID)
 			break

@@ -1,104 +1,102 @@
 <!DOCTYPE html>
 <html lang="en" charset="utf-8">
-
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+    />
     <title>Sign In</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css"
+    />
 
     <style>
-        body {
-            height: 100vh;
-        }
+      body {
+        height: 100vh;
+      }
 
-        .sign-in-box {
-            max-width: 400px;
-            margin: 1.25rem auto;
-        }
+      .sign-in-box {
+        max-width: 400px;
+        margin: 1.25rem auto;
+      }
 
-        .logo-box {
-            margin: 1.5rem 3rem;
-        }
+      .logo-box {
+        margin: 1.5rem 3rem;
+      }
 
-        .alert {
-            padding: 5px;
-            background-color: #f44336;
-            color: white;
-            margin-bottom: 5px;
-            border-radius: 5px
-        }
+      .alert {
+        padding: 5px;
+        background-color: #f44336;
+        color: white;
+        margin-bottom: 5px;
+        border-radius: 5px;
+      }
 
-        .closebtn {
-            margin-left: 10px;
-            color: white;
-            font-weight: bold;
-            float: right;
-            font-size: 22px;
-            line-height: 20px;
-            cursor: pointer;
-            transition: 0.3s;
-        }
+      .closebtn {
+        margin-left: 10px;
+        color: white;
+        font-weight: bold;
+        float: right;
+        font-size: 22px;
+        line-height: 20px;
+        cursor: pointer;
+        transition: 0.3s;
+      }
 
-        .closebtn:hover {
-            color: black;
-        }
+      .closebtn:hover {
+        color: black;
+      }
 
-        footer a {
-            text-decoration: underline;
-        }
+      footer a {
+        text-decoration: underline;
+      }
     </style>
-</head>
+  </head>
 
-<body class="has-background-light">
+  <body class="has-background-light">
     <section class="section">
-        <div class="box block sign-in-box has-text-centered">
-
-            <div class="block logo-box">
-                <img src="https://telecomnancy.net/images/logo.svg" alt="Logo" />
-            </div>
-
-            <input type="hidden" name="rd" value="/">
-
-            <p class="block">S'authentifier avec telecomnancy.net</p>
-
-            <button type="submit" class="button block is-primary">Sign in with Google</button>
-
-
+      <div class="box block sign-in-box has-text-centered">
+        <div class="block logo-box">
+          <img id="logo" alt="Logo" />
         </div>
+
+        <input type="hidden" name="rd" value="/" />
+
+        <button type="submit" class="button block is-primary">
+          Sign in with Google
+        </button>
+      </div>
     </section>
 
     <script type="module">
-        let url = import.meta.env.VITE_BACKEND_URL;
-        document.querySelector('button').addEventListener('click', () => {
-            window.location.href = url + 'auth/';
-        });
+      let url = import.meta.env.VITE_BACKEND_URL;
+      document.querySelector("button").addEventListener("click", () => {
+        window.location.href = url + "auth/";
+      });
     </script>
 
-    <script>
-        if (window.location.hash) {
-            (function () {
-                var inputs = document.getElementsByName('rd');
-                for (var i = 0; i < inputs.length; i++) {
-
-                    var idx = inputs[i].value.indexOf('#');
-                    if (idx >= 0) {
-
-                        inputs[i].value = inputs[i].value.substr(0, idx);
-                    }
-                    inputs[i].value += window.location.hash;
-                }
-            })();
-        }
+    <script type="module">
+      import imgUrl from "../public/logo.svg";
+      document.getElementById("logo").src = imgUrl;
+      if (window.location.hash) {
+        (function () {
+          var inputs = document.getElementsByName("rd");
+          for (var i = 0; i < inputs.length; i++) {
+            var idx = inputs[i].value.indexOf("#");
+            if (idx >= 0) {
+              inputs[i].value = inputs[i].value.substr(0, idx);
+            }
+            inputs[i].value += window.location.hash;
+          }
+        })();
+      }
     </script>
+    <a type="hidden" href="place.html"></a>
 
     <footer class="footer has-text-grey has-background-light is-size-7">
-        <div class="content has-text-centered">
-
-
-        </div>
+      <div class="content has-text-centered"></div>
     </footer>
-
-</body>
-
+  </body>
 </html>

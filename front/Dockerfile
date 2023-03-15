@@ -1,12 +1,18 @@
-FROM node:19-alpine
+FROM node:19-alpine AS build
 
 WORKDIR /usr/src/app
 
 COPY package*.json ./
 RUN npm install
-
 COPY . .
-RUN rm ./src/.env.development && rm ./src/.env.example && mv ./src/.env.production ./src/.env
+RUN npm run build
 
-EXPOSE 5173
-CMD [ "npm", "run", "dev", "--", "--host" ]
+FROM busybox:1.35
+
+RUN adduser -D static
+USER static
+WORKDIR /home/static
+COPY --from=build /usr/src/app/dist .
+
+EXPOSE 80
+CMD ["busybox", "httpd", "-f", "-v", "-p", "80"]

@@ -1,7 +1,7 @@
 package router
 
 import (
-	"io/ioutil"
+	"os"
 	"time"
 	"tn-place/api/handlers/admin"
 	"tn-place/api/handlers/auth"
@@ -12,6 +12,8 @@ import (
 	"tn-place/internal/canva"
 	"tn-place/internal/env"
 	"tn-place/internal/server"
+
+	"github.com/gin-contrib/static"
 
 	"github.com/gin-gonic/gin"
 )
@@ -24,15 +26,19 @@ func Route(engine *gin.Engine) {
 
 	pl := server.NewServer(cv, env.ConnectionCount)
 	// Watch dog for saving image
-	defer ioutil.WriteFile(env.SavePath, pl.GetImageBytes(), 0644)
+	defer os.WriteFile(env.SavePath, pl.GetImageBytes(), 0644)
 	go func() {
 		for {
-			ioutil.WriteFile(env.SavePath, pl.GetImageBytes(), 0644)
+			os.WriteFile(env.SavePath, pl.GetImageBytes(), 0644)
 			canva.SavePlacers(pl.Canva.Placers)
 			time.Sleep(time.Second * time.Duration(env.SaveInterval))
 		}
 	}()
+
 	server.Pl = pl
+
+	engine.Use(static.Serve("/", static.LocalFile("dist", false)))
+	// engine.NoRoute(static.Serve("/", static.LocalFile("dist", false)))
 
 	status.LoadRoutes(path)
 	image.LoadRoutes(path)

@@ -9,7 +9,6 @@ import (
 )
 
 var Port string
-var Root string
 var LoadPath string
 var SavePath string
 var SaveInterval int
@@ -29,7 +28,6 @@ func init() {
 	godotenv.Load()
 	var err error
 	Port = os.Getenv("PORT")
-	Root = os.Getenv("ROOT")
 	LoadPath = os.Getenv("LOAD")
 	SavePath = os.Getenv("SAVE")
 	LogPath = os.Getenv("LOG")

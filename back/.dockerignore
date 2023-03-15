@@ -10,3 +10,7 @@ LICENSE
 .vscode
 .env
 .env.example
+place.json
+google.json
+place.png
+log.txt

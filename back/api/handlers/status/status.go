@@ -9,8 +9,8 @@ import (
 func GetStatus(c *gin.Context) {
 	count := server.Pl.ClientAmount()
 	c.JSON(200, gin.H{
-		"success":  true,
-		"status":   "OK",
-		"clients:": count,
+		"success": true,
+		"status":  "OK",
+		"clients": count,
 	})
 }
