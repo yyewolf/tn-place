@@ -1,4 +1,4 @@
-module tn-place
+module github.com/yyewolf/tn-place/back
 
 go 1.20
 
