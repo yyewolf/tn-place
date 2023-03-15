@@ -8,7 +8,7 @@ RUN npm install
 COPY front .
 RUN npm run build
 
-FROM golang:1.19-alpine AS build-back
+FROM golang:1.20-alpine AS build-back
 LABEL maintainer="yyewolf"
 
 WORKDIR /app
@@ -18,7 +18,7 @@ WORKDIR /app/cmd/place
 RUN go mod download
 RUN go build -o /app/main
 
-FROM alpine:3.14
+FROM alpine:3.17
 LABEL maintainer="yyewolf"
 
 WORKDIR /app
