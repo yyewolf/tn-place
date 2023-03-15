@@ -8,7 +8,7 @@ RUN npm install
 COPY front .
 RUN npm run build
 
-FROM golang:1.19-alpine AS build-back
+FROM golang:1.20-alpine AS build-back
 LABEL maintainer="yyewolf"
 
 WORKDIR /app
