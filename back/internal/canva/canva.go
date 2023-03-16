@@ -7,7 +7,8 @@ import (
 	"image/png"
 	"io/ioutil"
 	"os"
-	"tn-place/internal/env"
+
+	"github.com/yyewolf/tn-place/back/internal/env"
 )
 
 var PlacerFile string

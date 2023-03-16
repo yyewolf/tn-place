@@ -1,7 +1,7 @@
 package gateway
 
 import (
-	middlewares "tn-place/api/handlers/middleware"
+	middlewares "github.com/yyewolf/tn-place/back/api/handlers/middleware"
 
 	"github.com/gin-gonic/gin"
 )

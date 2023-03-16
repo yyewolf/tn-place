@@ -6,7 +6,8 @@ import (
 	"image/png"
 	"log"
 	"sync"
-	"tn-place/internal/canva"
+
+	"github.com/yyewolf/tn-place/back/internal/canva"
 )
 
 type Place struct {

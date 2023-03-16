@@ -4,8 +4,9 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"tn-place/api/router"
-	"tn-place/internal/env"
+
+	"github.com/yyewolf/tn-place/back/api/router"
+	"github.com/yyewolf/tn-place/back/internal/env"
 
 	"github.com/gin-gonic/gin"
 )

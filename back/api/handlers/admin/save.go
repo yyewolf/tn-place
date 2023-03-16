@@ -2,9 +2,10 @@ package admin
 
 import (
 	"io/ioutil"
-	"tn-place/internal/canva"
-	"tn-place/internal/env"
-	"tn-place/internal/server"
+
+	"github.com/yyewolf/tn-place/back/internal/canva"
+	"github.com/yyewolf/tn-place/back/internal/env"
+	"github.com/yyewolf/tn-place/back/internal/server"
 
 	"github.com/gin-gonic/gin"
 )

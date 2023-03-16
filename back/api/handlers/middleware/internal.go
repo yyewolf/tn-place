@@ -2,7 +2,8 @@ package middlewares
 
 import (
 	"net/http"
-	"tn-place/internal/env"
+
+	"github.com/yyewolf/tn-place/back/internal/env"
 
 	"github.com/gin-gonic/gin"
 )

@@ -3,15 +3,16 @@ package router
 import (
 	"os"
 	"time"
-	"tn-place/api/handlers/admin"
-	"tn-place/api/handlers/auth"
-	"tn-place/api/handlers/gateway"
-	"tn-place/api/handlers/image"
-	"tn-place/api/handlers/pixel"
-	"tn-place/api/handlers/status"
-	"tn-place/internal/canva"
-	"tn-place/internal/env"
-	"tn-place/internal/server"
+
+	"github.com/yyewolf/tn-place/back/api/handlers/admin"
+	"github.com/yyewolf/tn-place/back/api/handlers/auth"
+	"github.com/yyewolf/tn-place/back/api/handlers/gateway"
+	"github.com/yyewolf/tn-place/back/api/handlers/image"
+	"github.com/yyewolf/tn-place/back/api/handlers/pixel"
+	"github.com/yyewolf/tn-place/back/api/handlers/status"
+	"github.com/yyewolf/tn-place/back/internal/canva"
+	"github.com/yyewolf/tn-place/back/internal/env"
+	"github.com/yyewolf/tn-place/back/internal/server"
 
 	"github.com/gin-contrib/static"
 

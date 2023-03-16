@@ -5,7 +5,8 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"tn-place/internal/env"
+
+	"github.com/yyewolf/tn-place/back/internal/env"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/sessions"

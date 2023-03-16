@@ -8,8 +8,9 @@ import (
 	"log"
 	"net/http"
 	"time"
-	"tn-place/internal/env"
-	"tn-place/internal/server"
+
+	"github.com/yyewolf/tn-place/back/internal/env"
+	"github.com/yyewolf/tn-place/back/internal/server"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"

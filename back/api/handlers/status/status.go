@@ -1,7 +1,7 @@
 package status
 
 import (
-	"tn-place/internal/server"
+	"github.com/yyewolf/tn-place/back/internal/server"
 
 	"github.com/gin-gonic/gin"
 )

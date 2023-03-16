@@ -1,7 +1,7 @@
 package middlewares
 
 import (
-	"tn-place/api/handlers/auth"
+	"github.com/yyewolf/tn-place/back/api/handlers/auth"
 
 	"github.com/gin-gonic/gin"
 )
