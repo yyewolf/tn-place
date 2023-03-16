@@ -9,6 +9,7 @@ module.exports = {
       input: {
         main: resolve(__dirname, "src/index.html"),
         place: resolve(__dirname, "src/place.html"),
+        admin: resolve(__dirname, "src/admin.html"),
       },
     },
   },

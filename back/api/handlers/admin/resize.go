@@ -38,13 +38,15 @@ func resize(c *gin.Context) {
 		server.Pl.Imgbuf = nil
 		ioutil.WriteFile(env.SavePath, server.Pl.GetImageBytes(), 0644)
 
-		// Resize placers
 		newplacers := make([][]string, r.Width)
 		for i := range newplacers {
 			newplacers[i] = make([]string, r.Height)
 		}
 		for x := 0; x < img.Bounds().Dx(); x++ {
 			for y := 0; y < img.Bounds().Dy(); y++ {
+				if x >= r.Width || y >= r.Height {
+					break
+				}
 				newplacers[x][y] = server.Pl.Canva.Placers[x][y]
 			}
 		}

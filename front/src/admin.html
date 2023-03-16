@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Admin Panel</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css"
+    />
+  </head>
+  <body>
+    <section class="section">
+      <div class="container">
+        <h1 class="title">Admin Panel</h1>
+        <h2 class="subtitle">Manage place</h2>
+        <div class="columns">
+          <div class="column">
+            <div class="field">
+              <label class="label">Secret Token</label>
+              <div class="control">
+                <input id="token" class="input" type="password" />
+              </div>
+            </div>
+            <div class="field">
+              <label class="label">Size</label>
+              <div class="columns">
+                <div class="column">
+                  <div class="control">
+                    <input
+                      class="input"
+                      id="input-w"
+                      type="text"
+                      placeholder="Width"
+                    />
+                    <p class="help">Width</p>
+                  </div>
+                </div>
+                <div class="column">
+                  <div class="control">
+                    <input
+                      class="input"
+                      id="input-h"
+                      type="text"
+                      placeholder="Height"
+                    />
+                    <p class="help">Height</p>
+                  </div>
+                </div>
+                <div class="column">
+                  <div class="control">
+                    <a id="ch-size" class="button is-primary"> Change Size </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="control">
+              <a id="save-place" class="button is-primary"> Save the image </a>
+            </div>
+          </div>
+          <div class="column">
+            <h2 class="subtitle">Live place</h2>
+            <iframe
+              class="box"
+              src="place.html"
+              width="100%"
+              height="100%"
+              style="min-height: 500px"
+            ></iframe>
+          </div>
+        </div>
+      </div>
+    </section>
+  </body>
+  <script type="module" src="js/admin/ui.js"></script>
+</html>
