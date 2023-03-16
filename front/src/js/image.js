@@ -1,7 +1,6 @@
 const BACKEND_URL = import.meta.env.PROD
   ? location.protocol + "//" + location.host + "/"
   : import.meta.env.VITE_BACKEND_URL;
-console.log("BACKEND_URL", BACKEND_URL);
 
 let loaded = false;
 let loadingp = document.querySelector("#loading-p");
