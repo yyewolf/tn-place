@@ -8,5 +8,7 @@ services:
     volumes:
       - ./google.json:/app/google.json
       - ./place.png:/app/place.png
+      - ./place.json:/app/place.json
+      - ./log.txt:/app/log.txt
     ports:
       - 8080:8080
