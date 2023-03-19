@@ -28,12 +28,7 @@
       <div id="color-wrapper">
         <!-- Color picker -->
         <input id="color-picker" type="color" />
-        <input
-          type="button"
-          id="place-color"
-          class="place-color"
-          value="&#10004;&#65039;"
-        />
+        <i id="place-color" class="place-color fa-solid fa-check"></i>
       </div>
       <p id="pos-wrapper"></p>
       <div id="popup"></div>
@@ -46,9 +41,9 @@
       id="help-button"
       onclick="document.querySelector('#help-popup').style.visibility = 'visible';"
     >
-      <p><strong>Help</strong></p>
+      <p><i class="fa-sharp fa-regular fa-circle-question"></i></p>
     </button>
-    <div id="help-popup" style="visibility: visible">
+    <div id="help-popup" style="visibility: hidden">
       <div id="help-text-desktop">
         <p><strong>Left click</strong> to place a pixel.</p>
         <br />
@@ -83,4 +78,5 @@
       };
     </script>
   </body>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css" integrity="sha512-SzlrxWUlpfuzQ+pcUCosxcglQRNAq/DZjVsC0lE40xsADsfeQoEypE+enwcOiGjk/bSuGGKHEyjSoQ1zVisanQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </html>
