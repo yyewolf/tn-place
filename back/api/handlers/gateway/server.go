@@ -86,6 +86,10 @@ func readLoop(conn *websocket.Conn, i int, c *gin.Context, ch chan []byte) {
 			log.Printf("[ERR] %s was ignored due to timeout.\n", waiterID)
 			continue
 		}
+		if server.Pl.Paused {
+			log.Printf("[ERR] %s was ignored due to pause.\n", waiterID)
+			continue
+		}
 		if messageHandler(p) != nil {
 			log.Printf("[ERR] %s sent a bad message.\n", waiterID)
 			break

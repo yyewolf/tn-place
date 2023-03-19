@@ -12,6 +12,7 @@ import (
 
 type Place struct {
 	sync.RWMutex
+	Paused  bool
 	Msgs    chan []byte
 	Close   chan int
 	Clients []chan []byte

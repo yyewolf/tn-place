@@ -11,4 +11,6 @@ func LoadRoutes(r *gin.RouterGroup) {
 
 	sg.POST("/resize", middlewares.IsInternal(), resize)
 	sg.GET("/save", middlewares.IsInternal(), save)
+	sg.GET("/pause", pause)
+	sg.POST("/pause", middlewares.IsInternal(), pause)
 }

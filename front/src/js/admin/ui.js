@@ -7,6 +7,7 @@ const BACKEND_URL = import.meta.env.PROD
 let token = document.getElementById("token");
 let h = document.getElementById("input-h");
 let w = document.getElementById("input-w");
+let s = document.getElementById("status-text");
 
 getMeta(BACKEND_URL + "place.png").then((meta) => {
   h.value = meta.h;
@@ -41,4 +42,39 @@ document.getElementById("save-place").addEventListener("click", () => {
       alert("Error changing size");
     }
   });
+});
+
+document.getElementById("pause-place").addEventListener("click", () => {
+  fetch(BACKEND_URL + "admin/pause", {
+    method: "POST",
+    headers: {
+      "X-Internal-Request": token.value,
+    },
+  }).then((resp) => {
+    if (!resp.ok) {
+      alert("Error pausing place");
+    }
+    return resp.json()
+  }).then((resp) => {
+    if (resp.paused) {
+      s.innerText = "paused";
+    } else {
+      s.innerText = "not paused";
+    }
+  });
+});
+
+fetch(BACKEND_URL + "admin/pause", {
+  method: "GET",
+}).then((resp) => {
+  if (!resp.ok) {
+    alert("Error getting place status");
+  }
+  return resp.json()
+}).then((resp) => {
+  if (resp.paused) {
+    s.innerText = "paused";
+  } else {
+    s.innerText = "not paused";
+  }
 });
