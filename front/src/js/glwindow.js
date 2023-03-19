@@ -35,13 +35,18 @@ const viewportFragmentShaderSource = `
 		vec4 pixel_color = texture2D(tex, uv);
 		if (pixel_color.a < 1.0) {
 			vec2 pixel_coord = fract(vec2(uv.x * tex_size.x, uv.y * tex_size.y));
+      vec4 other_color = vec4(1.0-pixel_color.x, 1.0-pixel_color.y, 1.0-pixel_color.z, 1.0);
 			if (pixel_coord.x <= 0.08 || pixel_coord.x >= 0.93 || pixel_coord.y <= 0.08 || pixel_coord.y >= 0.93) {
-				if (pixel_color.x == 0.0 && pixel_color.y == 0.0 && pixel_color.z == 0.0) {
-					pixel_color = vec4(0.6, 0.6, 0.6, 1.0);
-				} else {
-					pixel_color = vec4(0.0, 0.0, 0.0, 1.0);
-				}
-			}
+        pixel_color = other_color;
+      } else if (pixel_coord.x <= 0.15 && pixel_coord.y <= 0.15) {
+        pixel_color = other_color;
+      } else if (pixel_coord.x >= 0.85 && pixel_coord.y <= 0.15) {
+        pixel_color = other_color;
+      } else if (pixel_coord.x <= 0.15 && pixel_coord.y >= 0.85) {
+        pixel_color = other_color;
+      } else if (pixel_coord.x >= 0.85 && pixel_coord.y >= 0.85) {
+        pixel_color = other_color;
+      }
 		}
 		gl_FragColor = pixel_color;
 	}
@@ -63,6 +68,8 @@ export class GLWindow {
   #u_view;
   #a_vert;
   #u_size;
+
+  outline = { x: 0, y: 0, originalColor: new Uint8Array([0, 0, 0]) };
 
   constructor(cvs) {
     this.#cvs = cvs;
@@ -91,11 +98,16 @@ export class GLWindow {
     this.#gl.clearColor(0.0, 0.0, 0.0, 0.0);
   }
 
+  getCanvas() {
+    return this.#cvs;
+  }
+
   ok() {
     return this.#gl != null;
   }
 
   draw() {
+    this.redrawCursor();
     this.#gl.bindFramebuffer(this.#gl.FRAMEBUFFER, null);
     this.#gl.clear(this.#gl.COLOR_BUFFER_BIT);
     this.#gl.drawArrays(this.#gl.TRIANGLES, 0, 6);
@@ -226,6 +238,31 @@ export class GLWindow {
     this.#gl.uniform2f(this.#u_cam, this.#camPos.x, this.#camPos.y);
   }
 
+  transitionToPos(targetPos, duration) {
+    const startTime = performance.now();
+    const startPos = { x: this.#camPos.x, y: this.#camPos.y };
+    let ctx = this;
+
+    function easingFunc(t) {
+      return t * t * (3.0 - 2.0 * t);
+    }
+
+    function animate(currentTime) {
+      const elapsedTime = currentTime - startTime;
+      const progress = Math.min(elapsedTime / duration, 1);
+      const easedProgress = easingFunc(progress);
+      const x = startPos.x + (targetPos.x - startPos.x) * easedProgress;
+      const y = startPos.y + (targetPos.y - startPos.y) * easedProgress;
+      ctx.setPos(x, y);
+      ctx.draw();
+      if (progress < 1) {
+        requestAnimationFrame(animate);
+      }
+    }
+
+    requestAnimationFrame(animate);
+  }
+
   setZoom(z) {
     if (z < 0.01) z = 0.01;
     if (z > 40) z = 40;
@@ -283,6 +320,20 @@ export class GLWindow {
 
     return pos;
   }
+
+  redrawCursor = () => {
+    let color = this.getColor(this.outline);
+    this.setPixelColor(this.outline.x + 0.5, this.outline.y + 0.5, color);
+    let pos = this.click({
+      x: window.innerWidth / 2,
+      y: window.innerHeight / 2,
+    });
+    this.outline = { x: pos.x, y: pos.y };
+    this.outline.x = Math.floor(this.outline.x);
+    this.outline.y = Math.floor(this.outline.y);
+    color = this.getColor(this.outline);
+    this.setPixelBorder(this.outline.x, this.outline.y, color);
+  };
 
   #createProgram(vertexShader, fragmentShader) {
     this.#program = this.#gl.createProgram();

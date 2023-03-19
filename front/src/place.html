@@ -16,7 +16,11 @@
   </head>
 
   <body>
-    <canvas id="viewport-canvas" oncontextmenu="return false;"></canvas>
+    <canvas
+      id="viewport-canvas"
+      class="transition"
+      oncontextmenu="return false;"
+    ></canvas>
     <div id="ui-wrapper">
       <p id="loading-p"></p>
       <p id="timer-p"></p>
@@ -24,6 +28,12 @@
       <div id="color-wrapper">
         <!-- Color picker -->
         <input id="color-picker" type="color" />
+        <input
+          type="button"
+          id="place-color"
+          class="place-color"
+          value="&#10004;&#65039;"
+        />
       </div>
       <div id="popup"></div>
       <div id="zoom-wrapper">

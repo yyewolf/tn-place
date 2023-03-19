@@ -12,7 +12,6 @@ export const GUI = (cvs, glWindow, gateway) => {
   let lastWindowPos = { x: 0, y: 0 };
   let lastScalingDist = 0;
   let touchstartTime;
-  let outline = { x: 0, y: 0, originalColor: new Uint8Array([0, 0, 0]) };
   let popup = document.querySelector("#popup");
   let tooltipDelay;
 
@@ -28,10 +27,6 @@ export const GUI = (cvs, glWindow, gateway) => {
   const colorWrapper = document.querySelector("#color-wrapper");
   const picker = document.querySelector("#color-picker");
   // prevent clicks on color wrapper from propagating to canvas
-  colorWrapper.addEventListener("click", (e) => {
-    // trigger color picker
-    picker.click();
-  });
 
   picker.addEventListener("input", (e) => {
     let rgb = hexToRgb(picker.value);
@@ -60,22 +55,56 @@ export const GUI = (cvs, glWindow, gateway) => {
   });
 
   window.addEventListener("wheel", (ev) => {
-    let zoom = glWindow.getZoom();
-    if (ev.deltaY > 0) {
-      zoom /= 1.05;
-    } else {
-      zoom *= 1.05;
-    }
+    const zoom = glWindow.getZoom();
+    const mousePos = { x: ev.clientX, y: ev.clientY };
+    const canvasBounds = glWindow.getCanvas().getBoundingClientRect();
+    const canvasCenter = {
+      x: canvasBounds.left + canvasBounds.width / 2,
+      y: canvasBounds.top + canvasBounds.height / 2,
+    };
+    const mouseOffset = {
+      x: mousePos.x - canvasCenter.x,
+      y: mousePos.y - canvasCenter.y,
+    };
+    const zoomFactor = ev.deltaY > 0 ? 1 / 1.05 : 1.05;
+    const newZoom = zoom * zoomFactor;
+    const cameraOffset = {
+      x: -mouseOffset.x * (1 / zoom - 1 / newZoom),
+      y: mouseOffset.y * (1 / zoom - 1 / newZoom),
+    };
+    const newCameraPos = {
+      x: glWindow.getPos().x - cameraOffset.x,
+      y: glWindow.getPos().y + cameraOffset.y,
+    };
 
-    glWindow.setZoom(zoom);
+    glWindow.setZoom(newZoom);
+    glWindow.setPos(newCameraPos.x, newCameraPos.y);
     glWindow.draw();
 
-    let url = new URL(window.location.href);
-    url.searchParams.set("x", glWindow.getPos().x);
-    url.searchParams.set("y", glWindow.getPos().y);
-    url.searchParams.set("z", glWindow.getZoom());
+    const url = new URL(window.location.href);
+    url.searchParams.set("x", newCameraPos.x);
+    url.searchParams.set("y", newCameraPos.y);
+    url.searchParams.set("z", newZoom);
     window.history.replaceState({}, "", url);
   });
+
+  // window.addEventListener("wheel", (ev) => {
+  //   let zoom = glWindow.getZoom();
+  //   if (ev.deltaY > 0) {
+  //     zoom /= 1.05;
+  //   } else {
+  //     zoom *= 1.05;
+  //   }
+
+  //   glWindow.setZoom(zoom);
+  //   glWindow.draw();
+
+  //   let url = new URL(window.location.href);
+  //   url.searchParams.set("x", glWindow.getPos().x);
+  //   url.searchParams.set("y", glWindow.getPos().y);
+  //   url.searchParams.set("z", glWindow.getZoom());
+  //   window.history.replaceState({}, "", url);
+  // });
 
   document.querySelector("#zoom-in").addEventListener("click", () => {
     zoomIn(1.2);
@@ -83,6 +112,11 @@ export const GUI = (cvs, glWindow, gateway) => {
 
   document.querySelector("#zoom-out").addEventListener("click", () => {
     zoomOut(1.2);
+  });
+
+  document.querySelector("#place-color").addEventListener("click", (e) => {
+    e.preventDefault();
+    drawPixel({ x: window.innerWidth / 2, y: window.innerHeight / 2 }, color);
   });
 
   window.addEventListener("resize", (ev) => {
@@ -105,7 +139,26 @@ export const GUI = (cvs, glWindow, gateway) => {
         if (ev.ctrlKey) {
           pickColor({ x: ev.clientX, y: ev.clientY });
         } else {
-          drawPixel({ x: ev.clientX, y: ev.clientY }, color);
+          const clickPos = { x: ev.clientX, y: ev.clientY };
+          const pixel_pos = glWindow.click({ x: ev.clientX, y: ev.clientY });
+          if (
+            Math.floor(pixel_pos.x) == glWindow.outline.x &&
+            Math.floor(pixel_pos.y) == glWindow.outline.y
+          ) {
+            return;
+          }
+
+          const movePos = {
+            x:
+              glWindow.getPos().x +
+              (clickPos.x - window.innerWidth / 2) / glWindow.getZoom(),
+            y:
+              glWindow.getPos().y +
+              (clickPos.y - window.innerHeight / 2) / glWindow.getZoom(),
+          };
+          glWindow.transitionToPos({ x: movePos.x, y: movePos.y }, 250);
+          glWindow.draw();
+          lastMovePos = movePos;
         }
     }
   });
@@ -122,7 +175,26 @@ export const GUI = (cvs, glWindow, gateway) => {
         if (ev.ctrlKey) {
           pickColor({ x: ev.clientX, y: ev.clientY });
         } else {
-          drawPixel({ x: ev.clientX, y: ev.clientY }, color);
+          const clickPos = { x: ev.clientX, y: ev.clientY };
+          const pixel_pos = glWindow.click({ x: ev.clientX, y: ev.clientY });
+          if (
+            Math.floor(pixel_pos.x) == glWindow.outline.x &&
+            Math.floor(pixel_pos.y) == glWindow.outline.y
+          ) {
+            return;
+          }
+
+          const movePos = {
+            x:
+              glWindow.getPos().x +
+              (clickPos.x - window.innerWidth / 2) / glWindow.getZoom(),
+            y:
+              glWindow.getPos().y +
+              (clickPos.y - window.innerHeight / 2) / glWindow.getZoom(),
+          };
+          glWindow.transitionToPos({ x: movePos.x, y: movePos.y }, 250);
+          glWindow.draw();
+          lastMovePos = movePos;
         }
       }
     }
@@ -148,16 +220,6 @@ export const GUI = (cvs, glWindow, gateway) => {
 
     // Handle outline if mouse is over canvas
     try {
-      let color = glWindow.getColor(outline);
-      glWindow.setPixelColor(outline.x + 0.5, outline.y + 0.5, color);
-
-      let pos = glWindow.click({ x: ev.clientX, y: ev.clientY });
-      outline = { x: pos.x, y: pos.y };
-      outline.x = Math.floor(outline.x);
-      outline.y = Math.floor(outline.y);
-      color = glWindow.getColor(outline);
-      glWindow.setPixelBorder(outline.x, outline.y, color);
-
       if (tooltipDelay) {
         clearTimeout(tooltipDelay);
       }
@@ -168,7 +230,14 @@ export const GUI = (cvs, glWindow, gateway) => {
         popup.style.top = ev.clientY + 10 + "px";
 
         // Get popup text from server
-        fetch(BACKEND_URL + "pixel/" + outline.x + "/" + outline.y + "/")
+        fetch(
+          BACKEND_URL +
+            "pixel/" +
+            glWindow.outline.x +
+            "/" +
+            glWindow.outline.y +
+            "/"
+        )
           .then((res) => res.json())
           .then((data) => {
             popup.innerHTML = data.placer;
