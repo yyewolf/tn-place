@@ -14,19 +14,45 @@ export const GUI = (cvs, glWindow, gateway) => {
   let touchstartTime;
   let popup = document.querySelector("#popup");
   let tooltipDelay;
+  let pos = document.querySelector("#pos-wrapper");
+  let lastURLChange = 0;
 
-  setInterval(() => {
+  const updatePos = () => {
+    let size = glWindow.getImageSize();
+    let x = Math.floor(glWindow.getPos().x)+size.x/2+1;
+    let y = Math.floor(glWindow.getPos().y)+size.y/2+1;
+    let z = glWindow.getZoom().toFixed(2);
+    pos.innerHTML = `(${x}, ${y}) ${z}x`;
+  };
+
+  const updateTimer = () => {
     if (getTimeout() > 0) {
       setTempTimeout(getTimeout() - 1);
       document.querySelector("#timer-p").innerHTML = secondFormat(getTimeout());
     } else {
       document.querySelector("#timer-p").innerHTML = "";
     }
-  }, 1000);
+  };
 
-  const colorWrapper = document.querySelector("#color-wrapper");
+  const updateURL = () => {
+    if (Date.now() - lastURLChange < 50) return;
+
+    lastURLChange = Date.now();
+    let url = new URL(window.location.href);
+    url.searchParams.set("x", Math.floor(glWindow.getPos().x));
+    url.searchParams.set("y", Math.floor(glWindow.getPos().y));
+    url.searchParams.set("z", glWindow.getZoom().toFixed(2));
+    window.history.replaceState({}, "", url);
+  };
+
+  const updateGUI = () => {
+    updatePos();
+    updateURL();
+  };
+
+  setInterval(updateTimer, 1000);
+
   const picker = document.querySelector("#color-picker");
-  // prevent clicks on color wrapper from propagating to canvas
 
   picker.addEventListener("input", (e) => {
     let rgb = hexToRgb(picker.value);
@@ -81,30 +107,8 @@ export const GUI = (cvs, glWindow, gateway) => {
     glWindow.setPos(newCameraPos.x, newCameraPos.y);
     glWindow.draw();
 
-    const url = new URL(window.location.href);
-    url.searchParams.set("x", newCameraPos.x);
-    url.searchParams.set("y", newCameraPos.y);
-    url.searchParams.set("z", newZoom);
-    window.history.replaceState({}, "", url);
+    updateGUI();
   });
-
-  // window.addEventListener("wheel", (ev) => {
-  //   let zoom = glWindow.getZoom();
-  //   if (ev.deltaY > 0) {
-  //     zoom /= 1.05;
-  //   } else {
-  //     zoom *= 1.05;
-  //   }
-
-  //   glWindow.setZoom(zoom);
-  //   glWindow.draw();
-
-  //   let url = new URL(window.location.href);
-  //   url.searchParams.set("x", glWindow.getPos().x);
-  //   url.searchParams.set("y", glWindow.getPos().y);
-  //   url.searchParams.set("z", glWindow.getZoom());
-  //   window.history.replaceState({}, "", url);
-  // });
 
   document.querySelector("#zoom-in").addEventListener("click", () => {
     zoomIn(1.2);
@@ -122,6 +126,7 @@ export const GUI = (cvs, glWindow, gateway) => {
   window.addEventListener("resize", (ev) => {
     glWindow.updateViewScale();
     glWindow.draw();
+    updateGUI();
   });
 
   cvs.addEventListener("mousedown", (ev) => {
@@ -156,11 +161,12 @@ export const GUI = (cvs, glWindow, gateway) => {
               glWindow.getPos().y +
               (clickPos.y - window.innerHeight / 2) / glWindow.getZoom(),
           };
-          glWindow.transitionToPos({ x: movePos.x, y: movePos.y }, 250);
+          glWindow.transitionToPos({ x: movePos.x, y: movePos.y }, 250, updateGUI);
           glWindow.draw();
           lastMovePos = movePos;
         }
     }
+    updateGUI();
   });
 
   cvs.addEventListener("mouseup", (ev) => {
@@ -192,18 +198,14 @@ export const GUI = (cvs, glWindow, gateway) => {
               glWindow.getPos().y +
               (clickPos.y - window.innerHeight / 2) / glWindow.getZoom(),
           };
-          glWindow.transitionToPos({ x: movePos.x, y: movePos.y }, 250);
+          glWindow.transitionToPos({ x: movePos.x, y: movePos.y }, 250, updateGUI);
           glWindow.draw();
           lastMovePos = movePos;
         }
       }
     }
 
-    let url = new URL(window.location.href);
-    url.searchParams.set("x", glWindow.getPos().x);
-    url.searchParams.set("y", glWindow.getPos().y);
-    url.searchParams.set("z", glWindow.getZoom());
-    window.history.replaceState({}, "", url);
+    updateGUI();
   });
 
   document.addEventListener("mousemove", (ev) => {
@@ -248,6 +250,7 @@ export const GUI = (cvs, glWindow, gateway) => {
       // ignore
     }
     glWindow.draw();
+    updateGUI();
   });
 
   cvs.addEventListener("touchstart", (ev) => {
@@ -265,12 +268,8 @@ export const GUI = (cvs, glWindow, gateway) => {
         navigator.vibrate(200);
       }
     }, 350);
-
-    let url = new URL(window.location.href);
-    url.searchParams.set("x", glWindow.getPos().x);
-    url.searchParams.set("y", glWindow.getPos().y);
-    url.searchParams.set("z", glWindow.getZoom());
-    window.history.replaceState({}, "", url);
+    
+    updateGUI();
   });
 
   cvs.addEventListener("touchend", (ev) => {
@@ -284,6 +283,7 @@ export const GUI = (cvs, glWindow, gateway) => {
     if (ev.touches.length === 0) {
       touchScaling = false;
     }
+    updateGUI();
   });
 
   document.addEventListener("touchmove", (ev) => {
@@ -352,26 +352,16 @@ export const GUI = (cvs, glWindow, gateway) => {
   const zoomIn = (factor) => {
     let zoom = glWindow.getZoom();
     glWindow.setZoom(zoom * factor);
-
-    let url = new URL(window.location.href);
-    url.searchParams.set("x", glWindow.getPos().x);
-    url.searchParams.set("y", glWindow.getPos().y);
-    url.searchParams.set("z", glWindow.getZoom());
-    window.history.replaceState({}, "", url);
-
     glWindow.draw();
+
+    updateGUI();
   };
 
   const zoomOut = (factor) => {
     let zoom = glWindow.getZoom();
     glWindow.setZoom(zoom / factor);
-
-    let url = new URL(window.location.href);
-    url.searchParams.set("x", glWindow.getPos().x);
-    url.searchParams.set("y", glWindow.getPos().y);
-    url.searchParams.set("z", glWindow.getZoom());
-    window.history.replaceState({}, "", url);
-
     glWindow.draw();
+
+    updateGUI();
   };
 };
