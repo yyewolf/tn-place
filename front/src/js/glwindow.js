@@ -35,16 +35,14 @@ const viewportFragmentShaderSource = `
 		vec4 pixel_color = texture2D(tex, uv);
 		if (pixel_color.a < 1.0) {
 			vec2 pixel_coord = fract(vec2(uv.x * tex_size.x, uv.y * tex_size.y));
-      vec4 other_color = vec4(1.0-pixel_color.x, 1.0-pixel_color.y, 1.0-pixel_color.z, 1.0);
-			if (pixel_coord.x <= 0.08 || pixel_coord.x >= 0.93 || pixel_coord.y <= 0.08 || pixel_coord.y >= 0.93) {
+      vec4 other_color = vec4(abs(0.8-pixel_color.x), abs(0.8-pixel_color.y), abs(0.8-pixel_color.z), 1.0);
+			if (pixel_coord.x <= 0.08 && pixel_coord.y <= 0.3 || pixel_coord.y <= 0.08 && pixel_coord.x <= 0.3) {
         pixel_color = other_color;
-      } else if (pixel_coord.x <= 0.15 && pixel_coord.y <= 0.15) {
+      } else if (pixel_coord.x >= 0.92 && pixel_coord.y <= 0.3 || pixel_coord.y <= 0.08 && pixel_coord.x >= 0.7) {
         pixel_color = other_color;
-      } else if (pixel_coord.x >= 0.85 && pixel_coord.y <= 0.15) {
+      } else if (pixel_coord.x <= 0.08 && pixel_coord.y >= 0.7 || pixel_coord.y >= 0.92 && pixel_coord.x <= 0.3) {
         pixel_color = other_color;
-      } else if (pixel_coord.x <= 0.15 && pixel_coord.y >= 0.85) {
-        pixel_color = other_color;
-      } else if (pixel_coord.x >= 0.85 && pixel_coord.y >= 0.85) {
+      } else if (pixel_coord.x >= 0.92 && pixel_coord.y >= 0.7 || pixel_coord.y >= 0.92 && pixel_coord.x >= 0.7) {
         pixel_color = other_color;
       }
 		}
@@ -218,6 +216,10 @@ export class GLWindow {
     return rgba.slice(0, 3);
   }
 
+  getImageSize() {
+    return this.#texScale;
+  }
+
   scroll(ev) {
     this.#camPos = { x: ev.target.scrollLeft, y: ev.target.scrollTop };
     this.#gl.uniform2f(this.#u_cam, this.#camPos.x, this.#camPos.y);
@@ -238,7 +240,7 @@ export class GLWindow {
     this.#gl.uniform2f(this.#u_cam, this.#camPos.x, this.#camPos.y);
   }
 
-  transitionToPos(targetPos, duration) {
+  transitionToPos(targetPos, duration, updateFunc) {
     const startTime = performance.now();
     const startPos = { x: this.#camPos.x, y: this.#camPos.y };
     let ctx = this;
@@ -255,6 +257,7 @@ export class GLWindow {
       const y = startPos.y + (targetPos.y - startPos.y) * easedProgress;
       ctx.setPos(x, y);
       ctx.draw();
+      if (updateFunc) updateFunc(progress);
       if (progress < 1) {
         requestAnimationFrame(animate);
       }
@@ -290,22 +293,22 @@ export class GLWindow {
     let a = {
       x:
         ((-0.5 * this.#texScale.x - this.#camPos.x) * this.#zoom) /
-          this.#cvs.width +
+        this.#cvs.width +
         0.5,
       y:
         ((-0.5 * this.#texScale.y - this.#camPos.y) * this.#zoom) /
-          this.#cvs.height +
+        this.#cvs.height +
         0.5,
     };
 
     let b = {
       x:
         ((0.5 * this.#texScale.x - this.#camPos.x) * this.#zoom) /
-          this.#cvs.width +
+        this.#cvs.width +
         0.5,
       y:
         ((0.5 * this.#texScale.y - this.#camPos.y) * this.#zoom) /
-          this.#cvs.height +
+        this.#cvs.height +
         0.5,
     };
 
@@ -324,11 +327,15 @@ export class GLWindow {
   redrawCursor = () => {
     let color = this.getColor(this.outline);
     this.setPixelColor(this.outline.x + 0.5, this.outline.y + 0.5, color);
-    let pos = this.click({
-      x: window.innerWidth / 2,
-      y: window.innerHeight / 2,
-    });
-    this.outline = { x: pos.x, y: pos.y };
+    try {
+      let pos = this.click({
+        x: window.innerWidth / 2,
+        y: window.innerHeight / 2,
+      });
+      this.outline = { x: pos.x, y: pos.y };
+    } catch (e) {
+      return;
+    }
     this.outline.x = Math.floor(this.outline.x);
     this.outline.y = Math.floor(this.outline.y);
     color = this.getColor(this.outline);
