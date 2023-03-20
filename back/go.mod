@@ -11,7 +11,7 @@ require (
 	github.com/joho/godotenv v1.5.1
 	github.com/markbates/goth v1.76.1
 	golang.org/x/oauth2 v0.6.0
-	google.golang.org/api v0.113.0
+	google.golang.org/api v0.114.0
 )
 
 require (
