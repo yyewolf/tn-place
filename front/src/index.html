@@ -72,6 +72,9 @@
 
     <script type="module">
       let url = import.meta.env.VITE_BACKEND_URL;
+      if (!url) {
+        url = "";
+      }
       document.querySelector("button").addEventListener("click", () => {
         window.location.href = url + "auth/";
       });
