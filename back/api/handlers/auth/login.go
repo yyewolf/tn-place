@@ -1,7 +1,6 @@
 package auth
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -65,80 +64,25 @@ func init() {
 }
 
 func login(ctx *gin.Context) {
-	// try to get the user without re-authenticating
-	provider, err := goth.GetProvider("google")
+	_, err := GetUser(ctx)
 	if err != nil {
-		ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
 		return
-	}
-	values := ctx.Request.URL.Query()
-	values.Add("provider", "google")
-	ctx.Request.URL.RawQuery = values.Encode()
-
-	value, err := gothic.GetFromSession(provider.Name(), ctx.Request)
-	if err != nil {
-		gothic.BeginAuthHandler(ctx.Writer, ctx.Request)
-		return
-	}
-
-	sess, err := provider.UnmarshalSession(value)
-	if err != nil {
-		gothic.BeginAuthHandler(ctx.Writer, ctx.Request)
-		return
-	}
-
-	_, err = provider.FetchUser(sess)
-	if err != nil {
-		params := ctx.Request.URL.Query()
-		if params.Encode() == "" && ctx.Request.Method == "POST" {
-			ctx.Request.ParseForm()
-			params = ctx.Request.Form
-		}
-
-		// get new token and retry fetch
-		_, err = sess.Authorize(provider, params)
-		if err != nil {
-			gothic.BeginAuthHandler(ctx.Writer, ctx.Request)
-			return
-		}
-
-		err = gothic.StoreInSession(provider.Name(), sess.Marshal(), ctx.Request, ctx.Writer)
-
-		if err != nil {
-			gothic.BeginAuthHandler(ctx.Writer, ctx.Request)
-			return
-		}
-
-		_, err := provider.FetchUser(sess)
-		if err != nil {
-			gothic.BeginAuthHandler(ctx.Writer, ctx.Request)
-			return
-		}
 	}
 
 	ctx.Redirect(http.StatusFound, env.GoogleRedirectFront)
 }
 
 func GetUser(ctx *gin.Context) (user goth.User, err error) {
-	// try to get the user without re-authenticating
-	provider, err := goth.GetProvider("google")
-	if err != nil {
-		fmt.Println("p:", err)
-		return
-	}
-	values := ctx.Request.URL.Query()
-	values.Add("provider", "google")
-	ctx.Request.URL.RawQuery = values.Encode()
+	providerI, _ := ctx.Get("provider")
+	provider := providerI.(goth.Provider)
 
 	value, err := gothic.GetFromSession(provider.Name(), ctx.Request)
 	if err != nil {
-		fmt.Println("g:", err)
 		return
 	}
 
 	sess, err := provider.UnmarshalSession(value)
 	if err != nil {
-		fmt.Println("u:", err)
 		return
 	}
 
@@ -157,9 +101,7 @@ func GetUser(ctx *gin.Context) (user goth.User, err error) {
 
 		user, err = provider.FetchUser(sess)
 		if err != nil {
-			fmt.Println("f2:", err)
 			ctx.AbortWithStatusJSON(http.StatusOK, gin.H{"logged": false})
-			return
 		}
 	}
 

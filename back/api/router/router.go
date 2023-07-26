@@ -8,6 +8,7 @@ import (
 	"github.com/yyewolf/tn-place/back/api/handlers/auth"
 	"github.com/yyewolf/tn-place/back/api/handlers/gateway"
 	"github.com/yyewolf/tn-place/back/api/handlers/image"
+	middlewares "github.com/yyewolf/tn-place/back/api/handlers/middleware"
 	"github.com/yyewolf/tn-place/back/api/handlers/pixel"
 	"github.com/yyewolf/tn-place/back/api/handlers/status"
 	"github.com/yyewolf/tn-place/back/internal/canva"
@@ -39,6 +40,7 @@ func Route(engine *gin.Engine) {
 	server.Pl = pl
 
 	engine.Use(static.Serve("/", static.LocalFile("dist", false)))
+	engine.Use(middlewares.WithProvider())
 	// engine.NoRoute(static.Serve("/", static.LocalFile("dist", false)))
 
 	status.LoadRoutes(path)

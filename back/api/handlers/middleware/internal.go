@@ -3,9 +3,8 @@ package middlewares
 import (
 	"net/http"
 
-	"github.com/yyewolf/tn-place/back/internal/env"
-
 	"github.com/gin-gonic/gin"
+	"github.com/yyewolf/tn-place/back/internal/env"
 )
 
 func IsInternal() gin.HandlerFunc {

@@ -10,15 +10,8 @@ import (
 )
 
 func check(ctx *gin.Context) {
-	// try to get the user without re-authenticating
-	provider, err := goth.GetProvider("google")
-	if err != nil {
-		ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
-		return
-	}
-	values := ctx.Request.URL.Query()
-	values.Add("provider", "google")
-	ctx.Request.URL.RawQuery = values.Encode()
+	providerI, _ := ctx.Get("provider")
+	provider := providerI.(goth.Provider)
 
 	value, err := gothic.GetFromSession(provider.Name(), ctx.Request)
 	if err != nil {

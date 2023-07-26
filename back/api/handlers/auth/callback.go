@@ -10,12 +10,38 @@ import (
 	"github.com/markbates/goth/gothic"
 )
 
-func callback(ctx *gin.Context) {
-	provider, err := goth.GetProvider("google")
+func callbackRetry(ctx *gin.Context, provider goth.Provider, sess goth.Session) (err error) {
+	params := ctx.Request.URL.Query()
+	if params.Encode() == "" && ctx.Request.Method == "POST" {
+		ctx.Request.ParseForm()
+		params = ctx.Request.Form
+	}
+
+	// get new token and retry fetch
+	_, err = sess.Authorize(provider, params)
 	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
 		return
 	}
+
+	err = gothic.StoreInSession(provider.Name(), sess.Marshal(), ctx.Request, ctx.Writer)
+
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
+		return
+	}
+
+	_, err = provider.FetchUser(sess)
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
+	}
+
+	return
+}
+
+func callback(ctx *gin.Context) {
+	providerI, _ := ctx.Get("provider")
+	provider := providerI.(goth.Provider)
 
 	value, err := gothic.GetFromSession(provider.Name(), ctx.Request)
 	if err != nil {
@@ -31,29 +57,8 @@ func callback(ctx *gin.Context) {
 
 	_, err = provider.FetchUser(sess)
 	if err != nil {
-		params := ctx.Request.URL.Query()
-		if params.Encode() == "" && ctx.Request.Method == "POST" {
-			ctx.Request.ParseForm()
-			params = ctx.Request.Form
-		}
-
-		// get new token and retry fetch
-		_, err = sess.Authorize(provider, params)
+		err = callbackRetry(ctx, provider, sess)
 		if err != nil {
-			ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
-			return
-		}
-
-		err = gothic.StoreInSession(provider.Name(), sess.Marshal(), ctx.Request, ctx.Writer)
-
-		if err != nil {
-			ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
-			return
-		}
-
-		_, err := provider.FetchUser(sess)
-		if err != nil {
-			ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
 			return
 		}
 	}
