@@ -1,4 +1,4 @@
-FROM node:19-alpine AS build-front
+FROM node:20-alpine AS build-front
 LABEL maintainer="yyewolf"
 
 WORKDIR /usr/src/app
