@@ -9,6 +9,8 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/yyewolf/tn-place/back/internal/canva"
+	"github.com/yyewolf/tn-place/back/internal/education"
 	"github.com/yyewolf/tn-place/back/internal/env"
 	"github.com/yyewolf/tn-place/back/internal/server"
 
@@ -69,6 +71,7 @@ var waiter = make(map[string]time.Time)
 
 func readLoop(conn *websocket.Conn, i int, c *gin.Context, ch chan []byte) {
 	gUser := c.MustGet("user").(*goth.User)
+	edu := c.MustGet("education").(*education.Education)
 	waiterID := gUser.UserID
 	limiter := rateLimiter()
 	for {
@@ -96,8 +99,11 @@ func readLoop(conn *websocket.Conn, i int, c *gin.Context, ch chan []byte) {
 		}
 		// Log
 		x, y, color := parseEvent(p)
-		log.Printf("[PLACE] User %s placed pixel at (%d, %d) with color %v\n", waiterID, x, y, color)
-		server.Pl.Canva.Placers[x][y] = gUser.Email
+		log.Printf("[PLACE] User %s on Team %d placed pixel at (%d, %d) with color %v\n", gUser.Email, edu.Team, x, y, color)
+		server.Pl.Canva.Placers[x][y] = &canva.PlacerInfo{
+			Name: gUser.Name,
+			Team: edu.Team,
+		}
 		// User has to wait 60 seconds before setting another pixel
 		waiter[waiterID] = time.Now().Add(time.Second * time.Duration(env.Timeout))
 		b := make([]byte, 8)

@@ -5,7 +5,7 @@ import (
 	"image"
 	"image/draw"
 	"image/png"
-	"io/ioutil"
+	"io"
 	"os"
 
 	"github.com/yyewolf/tn-place/back/internal/env"
@@ -13,23 +13,28 @@ import (
 
 var PlacerFile string
 
+type PlacerInfo struct {
+	Name string
+	Team int
+}
+
 type Canva struct {
 	Width   int
 	Height  int
 	Image   draw.Image
-	Placers [][]string
+	Placers [][]*PlacerInfo
 }
 
-func CreateRawImage(width, height int) (img draw.Image, placers [][]string) {
+func CreateRawImage(width, height int) (img draw.Image, placers [][]*PlacerInfo) {
 	nrgba := image.NewNRGBA(image.Rect(0, 0, env.Width, env.Height))
 	for i := range nrgba.Pix {
 		nrgba.Pix[i] = 255
 	}
 	img = nrgba
 
-	placers = make([][]string, env.Width)
+	placers = make([][]*PlacerInfo, env.Width)
 	for i := range placers {
-		placers[i] = make([]string, env.Height)
+		placers[i] = make([]*PlacerInfo, env.Height)
 	}
 
 	return img, placers
@@ -37,7 +42,7 @@ func CreateRawImage(width, height int) (img draw.Image, placers [][]string) {
 
 func NewImage() *Canva {
 	var img draw.Image
-	var placers [][]string
+	var placers [][]*PlacerInfo
 	canva := &Canva{
 		Width:   env.Width,
 		Height:  env.Height,
@@ -68,9 +73,9 @@ func NewImage() *Canva {
 	PlacerFile = file
 	placers = LoadPlacers(file)
 	if placers == nil {
-		placers = make([][]string, env.Width)
+		placers = make([][]*PlacerInfo, env.Width)
 		for i := range placers {
-			placers[i] = make([]string, env.Height)
+			placers[i] = make([]*PlacerInfo, env.Height)
 		}
 	}
 
@@ -84,7 +89,7 @@ func NewImage() *Canva {
 	return canva
 }
 
-func ExpandImage(img draw.Image, placers [][]string, width, height int) (draw.Image, [][]string) {
+func ExpandImage(img draw.Image, placers [][]*PlacerInfo, width, height int) (draw.Image, [][]*PlacerInfo) {
 	newimg := image.NewNRGBA(image.Rect(0, 0, env.Width, env.Height))
 	for i := range newimg.Pix {
 		newimg.Pix[i] = 255
@@ -93,9 +98,9 @@ func ExpandImage(img draw.Image, placers [][]string, width, height int) (draw.Im
 	img = newimg
 
 	// Expand the placers
-	newplacers := make([][]string, env.Width)
+	newplacers := make([][]*PlacerInfo, env.Width)
 	for i := range newplacers {
-		newplacers[i] = make([]string, env.Height)
+		newplacers[i] = make([]*PlacerInfo, env.Height)
 	}
 	for x := 0; x < img.Bounds().Dx(); x++ {
 		for y := 0; y < img.Bounds().Dy(); y++ {
@@ -118,17 +123,17 @@ func Load(loadPath string) draw.Image {
 	return pngimg.(draw.Image)
 }
 
-func LoadPlacers(loadPath string) [][]string {
+func LoadPlacers(loadPath string) [][]*PlacerInfo {
 	f, err := os.Open(loadPath)
 	if err != nil {
 		return nil
 	}
 	defer f.Close()
-	data, err := ioutil.ReadAll(f)
+	data, err := io.ReadAll(f)
 	if err != nil {
 		return nil
 	}
-	var placers [][]string
+	var placers [][]*PlacerInfo
 	err = json.Unmarshal(data, &placers)
 	if err != nil {
 		return nil
@@ -136,7 +141,7 @@ func LoadPlacers(loadPath string) [][]string {
 	return placers
 }
 
-func SavePlacers(placers [][]string) {
+func SavePlacers(placers [][]*PlacerInfo) {
 	f, err := os.Create(PlacerFile)
 	if err != nil {
 		return

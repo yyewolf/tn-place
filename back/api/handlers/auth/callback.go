@@ -55,7 +55,7 @@ func callback(ctx *gin.Context) {
 		return
 	}
 
-	_, err = provider.FetchUser(sess)
+	usr, err := provider.FetchUser(sess)
 	if err != nil {
 		err = callbackRetry(ctx, provider, sess)
 		if err != nil {
@@ -63,46 +63,11 @@ func callback(ctx *gin.Context) {
 		}
 	}
 
-	// c := context.Background()
-	// oconfig := &oauth2.Config{}
-	// token, err := googleProvider.RefreshToken(user.RefreshToken)
-	// if err != nil {
-	// 	ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Error refreshing token"})
-	// 	return
-	// }
-	// adminService, err := admin.NewService(c, option.WithTokenSource(oconfig.TokenSource(c, token)))
-	// if err != nil {
-	// 	ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
-	// 	return
-	// }
-
-	// t, err := adminService.Users.Get(user.UserID).Projection("custom").CustomFieldMask("Education").ViewType("domain_public").Do()
-	// if err != nil {
-	// 	ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
-	// 	return
-	// }
-	// edc := &Education{}
-	// err = json.Unmarshal(t.CustomSchemas["Education"], edc)
-	// if err != nil {
-	// 	ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
-	// 	return
-	// }
-	// Saves to database
-
-	// alreadyRegistered, _ := services.GetUserByID(user.UserID)
-
-	// u := &models.User{
-	// 	ID:      user.UserID,
-	// 	Email:   user.Email,
-	// 	Name:    user.FirstName,
-	// 	Surname: user.LastName,
-	// 	Promo:   edc.Promo,
-	// 	Spe:     edc.Spe,
-
-	// 	Type: alreadyRegistered.Type,
-	// }
-
-	// db.DB.Save(u)
+	// Disconnect if email doesn't end with @telecomnancy.net
+	if usr.Email != "" && usr.Email[len(usr.Email)-16:] != "@telecomnancy.net" {
+		gothic.Logout(ctx.Writer, ctx.Request)
+		return
+	}
 
 	ctx.Redirect(http.StatusFound, env.GoogleRedirectFront)
 }

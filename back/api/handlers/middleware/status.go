@@ -14,10 +14,7 @@ func SetStatus() gin.HandlerFunc {
 			return
 		}
 
-		// user, err := services.GetUserByID(gu.UserID)
-		// if err != nil {
-		// 	ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Error getting user"})
-		// }
+		SetEducation(ctx, gu)
 
 		ctx.Set("is_logged_in", true)
 		ctx.Set("user_id", gu.UserID)

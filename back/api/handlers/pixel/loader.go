@@ -1,6 +1,7 @@
 package pixel
 
 import (
+	"fmt"
 	"strconv"
 
 	"github.com/yyewolf/tn-place/back/internal/server"
@@ -29,7 +30,7 @@ func GetPixelInfo(c *gin.Context) {
 	// Get pixel author
 	author := server.Pl.Canva.Placers[x][y]
 
-	c.JSON(200, gin.H{"placer": author})
+	c.JSON(200, gin.H{"placer": fmt.Sprintf("Équipe %d", author.Team)})
 }
 
 func LoadRoutes(r *gin.RouterGroup) {
