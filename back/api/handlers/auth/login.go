@@ -66,6 +66,7 @@ func init() {
 func login(ctx *gin.Context) {
 	_, err := GetUser(ctx)
 	if err != nil {
+		gothic.BeginAuthHandler(ctx.Writer, ctx.Request)
 		return
 	}
 
