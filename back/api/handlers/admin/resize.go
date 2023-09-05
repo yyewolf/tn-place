@@ -4,7 +4,7 @@ import (
 	"encoding/binary"
 	"image"
 	"image/draw"
-	"io/ioutil"
+	"os"
 
 	"github.com/yyewolf/tn-place/back/internal/canva"
 	"github.com/yyewolf/tn-place/back/internal/env"
@@ -36,7 +36,7 @@ func resize(c *gin.Context) {
 		draw.Draw(newimg, newimg.Bounds(), img, image.Point{0, 0}, draw.Src)
 		server.Pl.Canva.Image = newimg
 		server.Pl.Imgbuf = nil
-		ioutil.WriteFile(env.SavePath, server.Pl.GetImageBytes(), 0644)
+		os.WriteFile(env.C.SavePath, server.Pl.GetImageBytes(), 0644)
 
 		newplacers := make([][]string, r.Width)
 		for i := range newplacers {

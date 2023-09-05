@@ -104,5 +104,5 @@ func callback(ctx *gin.Context) {
 
 	// db.DB.Save(u)
 
-	ctx.Redirect(http.StatusFound, env.GoogleRedirectFront)
+	ctx.Redirect(http.StatusFound, env.C.Google.RedirectFront)
 }

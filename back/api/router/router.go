@@ -21,27 +21,27 @@ import (
 )
 
 func Route(engine *gin.Engine) {
+	engine.Use(middlewares.WithProvider())
+	engine.Use(static.Serve("/", static.LocalFile("dist", false)))
+	// engine.NoRoute(static.Serve("/", static.LocalFile("dist", false)))
+
 	path := engine.Group("/")
 
 	// Create image
 	cv := canva.NewImage()
 
-	pl := server.NewServer(cv, env.ConnectionCount)
+	pl := server.NewServer(cv, env.C.ConnectionCount)
 	// Watch dog for saving image
-	defer os.WriteFile(env.SavePath, pl.GetImageBytes(), 0644)
+	defer os.WriteFile(env.C.SavePath, pl.GetImageBytes(), 0644)
 	go func() {
 		for {
-			os.WriteFile(env.SavePath, pl.GetImageBytes(), 0644)
+			os.WriteFile(env.C.SavePath, pl.GetImageBytes(), 0644)
 			canva.SavePlacers(pl.Canva.Placers)
-			time.Sleep(time.Second * time.Duration(env.SaveInterval))
+			time.Sleep(time.Second * time.Duration(env.C.SaveInterval))
 		}
 	}()
 
 	server.Pl = pl
-
-	engine.Use(static.Serve("/", static.LocalFile("dist", false)))
-	engine.Use(middlewares.WithProvider())
-	// engine.NoRoute(static.Serve("/", static.LocalFile("dist", false)))
 
 	status.LoadRoutes(path)
 	image.LoadRoutes(path)

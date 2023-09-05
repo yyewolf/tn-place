@@ -11,7 +11,7 @@ import (
 
 func logout(ctx *gin.Context) {
 	gothic.Logout(ctx.Writer, ctx.Request)
-	http.Redirect(ctx.Writer, ctx.Request, env.GoogleRedirectFront, http.StatusTemporaryRedirect)
+	http.Redirect(ctx.Writer, ctx.Request, env.C.Google.RedirectFront, http.StatusTemporaryRedirect)
 
 	ctx.JSON(http.StatusOK, gin.H{})
 }

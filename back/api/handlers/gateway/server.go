@@ -99,9 +99,9 @@ func readLoop(conn *websocket.Conn, i int, c *gin.Context, ch chan []byte) {
 		log.Printf("[PLACE] User %s placed pixel at (%d, %d) with color %v\n", waiterID, x, y, color)
 		server.Pl.Canva.Placers[x][y] = gUser.Email
 		// User has to wait 60 seconds before setting another pixel
-		waiter[waiterID] = time.Now().Add(time.Second * time.Duration(env.Timeout))
+		waiter[waiterID] = time.Now().Add(time.Second * time.Duration(env.C.Timeout))
 		b := make([]byte, 8)
-		binary.BigEndian.PutUint64(b, uint64(env.Timeout))
+		binary.BigEndian.PutUint64(b, uint64(env.C.Timeout))
 		ch <- b
 	}
 	server.Pl.Close <- i
