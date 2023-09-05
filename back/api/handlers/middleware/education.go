@@ -3,7 +3,6 @@ package middlewares
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"os"
 
@@ -46,7 +45,6 @@ func FindTeam(lastName, firstName string) int {
 	var teams TeamFile
 	err = json.Unmarshal(d, &teams)
 	if err != nil {
-		fmt.Println(err)
 		return -1
 	}
 
