@@ -1,11 +1,13 @@
 package auth
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/gin-gonic/gin"
+)
 
 func LoadRoutes(rg *gin.RouterGroup) {
 	sg := rg.Group("/auth")
 	sg.GET("/", login)
-	sg.GET("/loggedin", check)
+	sg.GET("/self", check)
 	sg.GET("/callback", callback)
 
 	lg := rg.Group("/logout")

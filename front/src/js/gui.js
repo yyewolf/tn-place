@@ -1,5 +1,6 @@
 import { hexToRgb, secondFormat } from "./utils.js";
 import { setTimeout as setTempTimeout, getTimeout } from "./timeout.js";
+import { getUser } from "./messages.js";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -15,7 +16,12 @@ export const GUI = (cvs, glWindow, gateway) => {
   let popup = document.querySelector("#popup");
   let tooltipDelay;
   let pos = document.querySelector("#pos-wrapper");
+  let team = document.querySelector("#team-wrapper");
   let lastURLChange = 0;
+
+  getUser().then((user) => {
+    team.innerHTML = `Team ` + user.team;
+  });
 
   const updatePos = () => {
     let size = glWindow.getImageSize();
@@ -231,13 +237,19 @@ export const GUI = (cvs, glWindow, gateway) => {
         popup.style.left = ev.clientX + 10 + "px";
         popup.style.top = ev.clientY + 10 + "px";
 
+        const clickPos = { x: ev.clientX, y: ev.clientY };
+        const pixel_pos = glWindow.click({ x: ev.clientX, y: ev.clientY });
+        // round to nearest pixel
+        pixel_pos.x = Math.floor(pixel_pos.x);
+        pixel_pos.y = Math.floor(pixel_pos.y);
+
         // Get popup text from server
         fetch(
           BACKEND_URL +
             "pixel/" +
-            glWindow.outline.x +
+            pixel_pos.x +
             "/" +
-            glWindow.outline.y +
+            pixel_pos.y +
             "/"
         )
           .then((res) => res.json())

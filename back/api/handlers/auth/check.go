@@ -7,6 +7,7 @@ import (
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/gothic"
 	"github.com/markbates/goth/providers/google"
+	"github.com/yyewolf/tn-place/back/internal/teams"
 )
 
 func check(ctx *gin.Context) {
@@ -48,7 +49,8 @@ func check(ctx *gin.Context) {
 		// 	ctx.AbortWithStatusJSON(http.StatusOK, gin.H{"logged": false})
 		// 	return
 		// }
-		ctx.JSON(http.StatusOK, gin.H{"user": user, "logged": true})
+
+		ctx.JSON(http.StatusOK, gin.H{"team": teams.FindTeam(user.LastName, user.FirstName), "logged": true})
 		return
 	}
 
@@ -57,5 +59,5 @@ func check(ctx *gin.Context) {
 	// 	ctx.AbortWithStatusJSON(http.StatusOK, gin.H{"logged": false})
 	// 	return
 	// }
-	ctx.JSON(http.StatusOK, gin.H{"user": user, "logged": true})
+	ctx.JSON(http.StatusOK, gin.H{"team": teams.FindTeam(user.LastName, user.FirstName), "logged": true})
 }

@@ -281,3 +281,17 @@ body {
   font-family: mono;
   box-shadow: 0 0 15px black;
 }
+
+#team-wrapper {
+  position: absolute;
+  top: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 5px 15px 5px 15px;
+  background: white;
+  border-radius: 100px;
+  text-align: center;
+  z-index: 5;
+  font-family: mono;
+  box-shadow: 0 0 15px black;
+}
