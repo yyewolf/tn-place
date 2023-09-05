@@ -34,16 +34,16 @@ var (
 )
 
 func init() {
-	token := env.CookieSecret
+	token := env.C.Cookies.Secret
 	key := []byte(token)
 	maxAge := 86400 * 30 // 30 days cookie
 
 	store := sessions.NewCookieStore(key)
 	store.MaxAge(maxAge)
-	store.Options.Domain = env.CookieHost
+	store.Options.Domain = env.C.Cookies.Host
 	store.Options.Path = "/"
 
-	b, err := os.ReadFile(env.GoogleSecretPath)
+	b, err := os.ReadFile(env.C.Google.Secret)
 	if err != nil {
 		log.Fatalf("Unable to read client secret file: %v", err)
 	}
@@ -54,7 +54,7 @@ func init() {
 		log.Fatalf("Unable to parse client secret file to config: %v", err)
 	}
 
-	googleProvider = google.New(s.ClientID, s.ClientSecret, env.GoogleRedirectURI, scopes...)
+	googleProvider = google.New(s.ClientID, s.ClientSecret, env.C.Google.RedirectURI, scopes...)
 	googleProvider.SetHostedDomain("telecomnancy.net")
 	googleProvider.SetPrompt("consent")
 	googleProvider.SetAccessType("offline")
@@ -69,7 +69,7 @@ func login(ctx *gin.Context) {
 		return
 	}
 
-	ctx.Redirect(http.StatusFound, env.GoogleRedirectFront)
+	ctx.Redirect(http.StatusFound, env.C.Google.RedirectFront)
 }
 
 func GetUser(ctx *gin.Context) (user goth.User, err error) {

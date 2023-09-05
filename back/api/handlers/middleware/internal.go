@@ -9,7 +9,7 @@ import (
 
 func IsInternal() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		if ctx.Request.Header.Get("X-Internal-Request") != env.InternalSecret {
+		if ctx.Request.Header.Get("X-Internal-Request") != env.C.InternalSecret {
 			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
 			return
 		}

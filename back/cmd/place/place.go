@@ -15,8 +15,8 @@ import (
 
 func main() {
 	// Load environment variables
-	if env.LogPath != "" {
-		f, err := os.OpenFile(env.LogPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if env.C.LogPath != "" {
+		f, err := os.OpenFile(env.C.LogPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -43,7 +43,7 @@ func main() {
 	router.Route(r)
 
 	server := http.Server{
-		Addr:    env.Port,
+		Addr:    env.C.Port,
 		Handler: r,
 	}
 	log.Fatal(server.ListenAndServe())

@@ -26,15 +26,15 @@ type Canva struct {
 }
 
 func CreateRawImage(width, height int) (img draw.Image, placers [][]*PlacerInfo) {
-	nrgba := image.NewNRGBA(image.Rect(0, 0, env.Width, env.Height))
+	nrgba := image.NewNRGBA(image.Rect(0, 0, env.C.Width, env.C.Height))
 	for i := range nrgba.Pix {
 		nrgba.Pix[i] = 255
 	}
 	img = nrgba
 
-	placers = make([][]*PlacerInfo, env.Width)
+	placers = make([][]*PlacerInfo, env.C.Width)
 	for i := range placers {
-		placers[i] = make([]*PlacerInfo, env.Height)
+		placers[i] = make([]*PlacerInfo, env.C.Height)
 	}
 
 	return img, placers
@@ -44,28 +44,28 @@ func NewImage() *Canva {
 	var img draw.Image
 	var placers [][]*PlacerInfo
 	canva := &Canva{
-		Width:   env.Width,
-		Height:  env.Height,
+		Width:   env.C.Width,
+		Height:  env.C.Height,
 		Image:   img,
 		Placers: placers,
 	}
-	if env.LoadPath == "" {
-		img, placers = CreateRawImage(env.Width, env.Height)
+	if env.C.LoadPath == "" {
+		img, placers = CreateRawImage(env.C.Width, env.C.Height)
 		canva.Image = img
 		canva.Placers = placers
 		return canva
 	}
 
-	img = Load(env.LoadPath)
+	img = Load(env.C.LoadPath)
 	if img == nil {
-		img, placers = CreateRawImage(env.Width, env.Height)
+		img, placers = CreateRawImage(env.C.Width, env.C.Height)
 		canva.Image = img
 		canva.Placers = placers
 		return canva
 	}
 
 	// Import placers from the same file but with a .json extension
-	file := env.LoadPath
+	file := env.C.LoadPath
 	if file[len(file)-4:] == ".png" {
 		file = file[:len(file)-4]
 	}
@@ -73,15 +73,15 @@ func NewImage() *Canva {
 	PlacerFile = file
 	placers = LoadPlacers(file)
 	if placers == nil {
-		placers = make([][]*PlacerInfo, env.Width)
+		placers = make([][]*PlacerInfo, env.C.Width)
 		for i := range placers {
-			placers[i] = make([]*PlacerInfo, env.Height)
+			placers[i] = make([]*PlacerInfo, env.C.Height)
 		}
 	}
 
 	// If the image is not the correct size, expand it only
-	if img.Bounds().Dx() < env.Width || img.Bounds().Dy() < env.Height {
-		img, placers = ExpandImage(img, placers, env.Width, env.Height)
+	if img.Bounds().Dx() < env.C.Width || img.Bounds().Dy() < env.C.Height {
+		img, placers = ExpandImage(img, placers, env.C.Width, env.C.Height)
 	}
 
 	canva.Image = img
@@ -90,7 +90,7 @@ func NewImage() *Canva {
 }
 
 func ExpandImage(img draw.Image, placers [][]*PlacerInfo, width, height int) (draw.Image, [][]*PlacerInfo) {
-	newimg := image.NewNRGBA(image.Rect(0, 0, env.Width, env.Height))
+	newimg := image.NewNRGBA(image.Rect(0, 0, env.C.Width, env.C.Height))
 	for i := range newimg.Pix {
 		newimg.Pix[i] = 255
 	}
@@ -98,9 +98,9 @@ func ExpandImage(img draw.Image, placers [][]*PlacerInfo, width, height int) (dr
 	img = newimg
 
 	// Expand the placers
-	newplacers := make([][]*PlacerInfo, env.Width)
+	newplacers := make([][]*PlacerInfo, env.C.Width)
 	for i := range newplacers {
-		newplacers[i] = make([]*PlacerInfo, env.Height)
+		newplacers[i] = make([]*PlacerInfo, env.C.Height)
 	}
 	for x := 0; x < img.Bounds().Dx(); x++ {
 		for y := 0; y < img.Bounds().Dy(); y++ {

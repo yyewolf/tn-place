@@ -36,7 +36,7 @@ func resize(c *gin.Context) {
 		draw.Draw(newimg, newimg.Bounds(), img, image.Point{0, 0}, draw.Src)
 		server.Pl.Canva.Image = newimg
 		server.Pl.Imgbuf = nil
-		os.WriteFile(env.SavePath, server.Pl.GetImageBytes(), 0644)
+		os.WriteFile(env.C.SavePath, server.Pl.GetImageBytes(), 0644)
 
 		newplacers := make([][]*canva.PlacerInfo, r.Width)
 		for i := range newplacers {

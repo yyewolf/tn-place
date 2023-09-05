@@ -69,5 +69,5 @@ func callback(ctx *gin.Context) {
 		return
 	}
 
-	ctx.Redirect(http.StatusFound, env.GoogleRedirectFront)
+	ctx.Redirect(http.StatusFound, env.C.Google.RedirectFront)
 }

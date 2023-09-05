@@ -105,9 +105,9 @@ func readLoop(conn *websocket.Conn, i int, c *gin.Context, ch chan []byte) {
 			Team: edu.Team,
 		}
 		// User has to wait 60 seconds before setting another pixel
-		waiter[waiterID] = time.Now().Add(time.Second * time.Duration(env.Timeout))
+		waiter[waiterID] = time.Now().Add(time.Second * time.Duration(env.C.Timeout))
 		b := make([]byte, 8)
-		binary.BigEndian.PutUint64(b, uint64(env.Timeout))
+		binary.BigEndian.PutUint64(b, uint64(env.C.Timeout))
 		ch <- b
 	}
 	server.Pl.Close <- i
