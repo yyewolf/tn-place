@@ -30,6 +30,11 @@ func GetPixelInfo(c *gin.Context) {
 	// Get pixel author
 	author := server.Pl.Canva.Placers[x][y]
 
+	if author == nil {
+		c.JSON(200, gin.H{"placer": "Aucun"})
+		return
+	}
+
 	c.JSON(200, gin.H{"placer": fmt.Sprintf("Équipe %d", author.Team)})
 }
 

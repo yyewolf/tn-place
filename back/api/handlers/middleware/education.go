@@ -3,6 +3,7 @@ package middlewares
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"os"
 
@@ -18,6 +19,7 @@ import (
 type TeamFile map[string]int
 
 // Filter from integration :
+// https://jsoneditoronline.org/
 //
 // function query (data) {
 // 	let out = {};
@@ -28,9 +30,7 @@ type TeamFile map[string]int
 // 		let e = equipes.indexOf(item?.["FIELD1"]);
 // 		if (e == -1) equipes.push(item?.["FIELD1"]); e = equipes.indexOf(item?.["FIELD1"]);
 
-// 		out[item?.["Nom"] + " " + item?.["Prénom"]] = {
-// 		  "Equipe": e + 1
-// 		}
+// 		out[item?.["Nom"] + " " + item?.["Prénom"]] = e + 1
 // 	  })
 // 	  .value()
 // 	return out;
@@ -46,6 +46,7 @@ func FindTeam(lastName, firstName string) int {
 	var teams TeamFile
 	err = json.Unmarshal(d, &teams)
 	if err != nil {
+		fmt.Println(err)
 		return -1
 	}
 

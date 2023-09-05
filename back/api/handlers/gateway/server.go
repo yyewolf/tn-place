@@ -80,6 +80,10 @@ func readLoop(conn *websocket.Conn, i int, c *gin.Context, ch chan []byte) {
 			fmt.Println(err)
 			break
 		}
+		if edu.Team == -1 {
+			log.Printf("[ERR] %s was ignored due to no team.\n", waiterID)
+			continue
+		}
 		if !limiter() {
 			log.Printf("[ERR] %s got recked by rate limiter.\n", waiterID)
 			break
