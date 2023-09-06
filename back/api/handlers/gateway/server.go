@@ -102,24 +102,28 @@ func readLoop(conn *websocket.Conn, i int, c *gin.Context, ch chan []byte) {
 		x, y, _ := parseEvent(p)
 		// Check if it's in the same team than the pixel above, below, left or right
 		if x > 0 && (server.Pl.Canva.Placers[x-1][y] == nil || server.Pl.Canva.Placers[x-1][y] != nil && server.Pl.Canva.Placers[x-1][y].Team != edu.Team) {
+			log.Printf("[ERR] %s ignored because not in same team as pixel above.\n", waiterID)
 			continue
 		}
 		if y > 0 && (server.Pl.Canva.Placers[x][y-1] == nil || server.Pl.Canva.Placers[x][y-1] != nil && server.Pl.Canva.Placers[x][y-1].Team != edu.Team) {
+			log.Printf("[ERR] %s ignored because not in same team as pixel left.\n", waiterID)
 			continue
 		}
 		if x < env.C.Width-1 && (server.Pl.Canva.Placers[x+1][y] == nil || server.Pl.Canva.Placers[x+1][y] != nil && server.Pl.Canva.Placers[x+1][y].Team != edu.Team) {
+			log.Printf("[ERR] %s ignored because not in same team as pixel below.\n", waiterID)
 			continue
 		}
 		if y < env.C.Height-1 && (server.Pl.Canva.Placers[x][y+1] == nil || server.Pl.Canva.Placers[x][y+1] != nil && server.Pl.Canva.Placers[x][y+1].Team != edu.Team) {
+			log.Printf("[ERR] %s ignored because not in same team as pixel right.\n", waiterID)
 			continue
 		}
 
-		if messageHandler(p) != nil {
+		color := teams.Colors[edu.Team]
+
+		if messageHandler(x, y, color) != nil {
 			log.Printf("[ERR] %s sent a bad message.\n", waiterID)
 			break
 		}
-
-		color := teams.Colors[edu.Team]
 
 		log.Printf("[PLACE] User %s on Team %s placed pixel at (%d, %d) with color %v\n", gUser.Email, edu.Team, x, y, color)
 		server.Pl.Canva.Placers[x][y] = &canva.PlacerInfo{
@@ -157,11 +161,11 @@ func writeLoop(conn *websocket.Conn, ch chan []byte) {
 	server.Pl.Msgs <- b
 }
 
-func messageHandler(p []byte) error {
-	if !server.Pl.SetPixel(parseEvent(p)) {
+func messageHandler(x, y int, c color.Color) error {
+	if !server.Pl.SetPixel(x, y, c) {
 		return errors.New("invalid placement")
 	}
-	server.Pl.Msgs <- p
+	server.Pl.Msgs <- createEvent(x, y, c)
 	return nil
 }
 
@@ -172,4 +176,14 @@ func parseEvent(b []byte) (int, int, color.Color) {
 	x := int(binary.BigEndian.Uint32(b))
 	y := int(binary.BigEndian.Uint32(b[4:]))
 	return x, y, color.NRGBA{b[8], b[9], b[10], 0xFF}
+}
+
+func createEvent(x, y int, c color.Color) []byte {
+	b := make([]byte, 11)
+	binary.BigEndian.PutUint32(b, uint32(x))
+	binary.BigEndian.PutUint32(b[4:], uint32(y))
+	b[8] = c.(color.NRGBA).R
+	b[9] = c.(color.NRGBA).G
+	b[10] = c.(color.NRGBA).B
+	return b
 }
