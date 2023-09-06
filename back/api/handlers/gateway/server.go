@@ -100,23 +100,19 @@ func readLoop(conn *websocket.Conn, i int, c *gin.Context, ch chan []byte) {
 		}
 
 		x, y, _ := parseEvent(p)
-		canPass := true
+		canPass := false
 		// Check if it's in the same team than the pixel above, below, left or right
-		if x > 0 && (server.Pl.Canva.Placers[x-1][y] == nil || server.Pl.Canva.Placers[x-1][y] != nil && server.Pl.Canva.Placers[x-1][y].Team != edu.Team) {
-			log.Printf("[ERR] %s ignored because not in same team as pixel above.\n", waiterID)
-			canPass = false
+		if x > 0 && server.Pl.Canva.Placers[x-1][y] != nil && server.Pl.Canva.Placers[x-1][y].Team == edu.Team {
+			canPass = true
 		}
-		if y > 0 && (server.Pl.Canva.Placers[x][y-1] == nil || server.Pl.Canva.Placers[x][y-1] != nil && server.Pl.Canva.Placers[x][y-1].Team != edu.Team) {
-			log.Printf("[ERR] %s ignored because not in same team as pixel left.\n", waiterID)
-			canPass = false
+		if y > 0 && server.Pl.Canva.Placers[x][y-1] != nil && server.Pl.Canva.Placers[x][y-1].Team == edu.Team {
+			canPass = true
 		}
-		if x < env.C.Width-1 && (server.Pl.Canva.Placers[x+1][y] == nil || server.Pl.Canva.Placers[x+1][y] != nil && server.Pl.Canva.Placers[x+1][y].Team != edu.Team) {
-			log.Printf("[ERR] %s ignored because not in same team as pixel below.\n", waiterID)
-			canPass = false
+		if x < env.C.Width-1 && server.Pl.Canva.Placers[x+1][y] != nil && server.Pl.Canva.Placers[x+1][y].Team == edu.Team {
+			canPass = true
 		}
-		if y < env.C.Height-1 && (server.Pl.Canva.Placers[x][y+1] == nil || server.Pl.Canva.Placers[x][y+1] != nil && server.Pl.Canva.Placers[x][y+1].Team != edu.Team) {
-			log.Printf("[ERR] %s ignored because not in same team as pixel right.\n", waiterID)
-			canPass = false
+		if y < env.C.Height-1 && server.Pl.Canva.Placers[x][y+1] != nil && server.Pl.Canva.Placers[x][y+1].Team == edu.Team {
+			canPass = true
 		}
 
 		if !canPass {
