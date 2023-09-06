@@ -15,7 +15,7 @@ var PlacerFile string
 
 type PlacerInfo struct {
 	Name string
-	Team int
+	Team string
 }
 
 type Canva struct {
