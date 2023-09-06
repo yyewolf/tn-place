@@ -35,7 +35,7 @@ func GetPixelInfo(c *gin.Context) {
 		return
 	}
 
-	c.JSON(200, gin.H{"placer": fmt.Sprintf("Équipe %d", author.Team)})
+	c.JSON(200, gin.H{"placer": fmt.Sprintf("Équipe %s", author.Team)})
 }
 
 func LoadRoutes(r *gin.RouterGroup) {

@@ -13,6 +13,7 @@ import (
 	"github.com/yyewolf/tn-place/back/internal/education"
 	"github.com/yyewolf/tn-place/back/internal/env"
 	"github.com/yyewolf/tn-place/back/internal/server"
+	"github.com/yyewolf/tn-place/back/internal/teams"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
@@ -101,9 +102,25 @@ func readLoop(conn *websocket.Conn, i int, c *gin.Context, ch chan []byte) {
 			log.Printf("[ERR] %s sent a bad message.\n", waiterID)
 			break
 		}
-		// Log
-		x, y, color := parseEvent(p)
-		log.Printf("[PLACE] User %s on Team %d placed pixel at (%d, %d) with color %v\n", gUser.Email, edu.Team, x, y, color)
+		x, y, _ := parseEvent(p)
+		// Check if it's in the same team than the pixel above, below, left or right
+
+		if x > 0 && server.Pl.Canva.Placers[x-1][y] != nil && server.Pl.Canva.Placers[x-1][y].Team != edu.Team {
+			continue
+		}
+		if y > 0 && server.Pl.Canva.Placers[x][y-1] != nil && server.Pl.Canva.Placers[x][y-1].Team != edu.Team {
+			continue
+		}
+		if x < env.C.Width-1 && server.Pl.Canva.Placers[x+1][y] != nil && server.Pl.Canva.Placers[x+1][y].Team != edu.Team {
+			continue
+		}
+		if y < env.C.Height-1 && server.Pl.Canva.Placers[x][y+1] != nil && server.Pl.Canva.Placers[x][y+1].Team != edu.Team {
+			continue
+		}
+
+		color := teams.Colors[edu.Team]
+
+		log.Printf("[PLACE] User %s on Team %s placed pixel at (%d, %d) with color %v\n", gUser.Email, edu.Team, x, y, color)
 		server.Pl.Canva.Placers[x][y] = &canva.PlacerInfo{
 			Name: gUser.Name,
 			Team: edu.Team,

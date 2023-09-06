@@ -2,6 +2,7 @@ package teams
 
 import (
 	"encoding/json"
+	"image/color"
 	"os"
 )
 
@@ -21,6 +22,15 @@ type TeamFile map[string]string
 // 	  .value()
 // 	return out;
 //   }
+
+var Colors = map[string]color.Color{
+	"Jaune or":        color.NRGBA{255, 215, 0, 255},
+	"Rouge écarlate":  color.NRGBA{237, 214, 0, 255},
+	"Noir anthracite": color.NRGBA{0, 0, 0, 255},
+	"Vert amande":     color.NRGBA{193, 217, 188, 255},
+	"Bleu ciel":       color.NRGBA{135, 206, 235, 255},
+	"Rose fuchsia":    color.NRGBA{252, 64, 138, 255},
+}
 
 func FindTeam(lastName, firstName string) string {
 	// Open teams.json and find the team of the student
