@@ -98,13 +98,9 @@ func readLoop(conn *websocket.Conn, i int, c *gin.Context, ch chan []byte) {
 			log.Printf("[ERR] %s was ignored due to pause.\n", waiterID)
 			continue
 		}
-		if messageHandler(p) != nil {
-			log.Printf("[ERR] %s sent a bad message.\n", waiterID)
-			break
-		}
+
 		x, y, _ := parseEvent(p)
 		// Check if it's in the same team than the pixel above, below, left or right
-
 		if x > 0 && (server.Pl.Canva.Placers[x-1][y] == nil || server.Pl.Canva.Placers[x-1][y] != nil && server.Pl.Canva.Placers[x-1][y].Team != edu.Team) {
 			continue
 		}
@@ -116,6 +112,11 @@ func readLoop(conn *websocket.Conn, i int, c *gin.Context, ch chan []byte) {
 		}
 		if y < env.C.Height-1 && (server.Pl.Canva.Placers[x][y+1] == nil || server.Pl.Canva.Placers[x][y+1] != nil && server.Pl.Canva.Placers[x][y+1].Team != edu.Team) {
 			continue
+		}
+
+		if messageHandler(p) != nil {
+			log.Printf("[ERR] %s sent a bad message.\n", waiterID)
+			break
 		}
 
 		color := teams.Colors[edu.Team]
