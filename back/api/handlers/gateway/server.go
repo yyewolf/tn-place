@@ -105,16 +105,16 @@ func readLoop(conn *websocket.Conn, i int, c *gin.Context, ch chan []byte) {
 		x, y, _ := parseEvent(p)
 		// Check if it's in the same team than the pixel above, below, left or right
 
-		if x > 0 && server.Pl.Canva.Placers[x-1][y] != nil && server.Pl.Canva.Placers[x-1][y].Team != edu.Team {
+		if x > 0 && (server.Pl.Canva.Placers[x-1][y] == nil || server.Pl.Canva.Placers[x-1][y] != nil && server.Pl.Canva.Placers[x-1][y].Team != edu.Team) {
 			continue
 		}
-		if y > 0 && server.Pl.Canva.Placers[x][y-1] != nil && server.Pl.Canva.Placers[x][y-1].Team != edu.Team {
+		if y > 0 && (server.Pl.Canva.Placers[x][y-1] == nil || server.Pl.Canva.Placers[x][y-1] != nil && server.Pl.Canva.Placers[x][y-1].Team != edu.Team) {
 			continue
 		}
-		if x < env.C.Width-1 && server.Pl.Canva.Placers[x+1][y] != nil && server.Pl.Canva.Placers[x+1][y].Team != edu.Team {
+		if x < env.C.Width-1 && (server.Pl.Canva.Placers[x+1][y] == nil || server.Pl.Canva.Placers[x+1][y] != nil && server.Pl.Canva.Placers[x+1][y].Team != edu.Team) {
 			continue
 		}
-		if y < env.C.Height-1 && server.Pl.Canva.Placers[x][y+1] != nil && server.Pl.Canva.Placers[x][y+1].Team != edu.Team {
+		if y < env.C.Height-1 && (server.Pl.Canva.Placers[x][y+1] == nil || server.Pl.Canva.Placers[x][y+1] != nil && server.Pl.Canva.Placers[x][y+1].Team != edu.Team) {
 			continue
 		}
 
