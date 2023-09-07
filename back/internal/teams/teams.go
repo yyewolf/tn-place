@@ -25,7 +25,7 @@ type TeamFile map[string]string
 
 var Colors = map[string]color.Color{
 	"Jaune or":        color.NRGBA{255, 215, 0, 255},
-	"Rouge écarlate":  color.NRGBA{237, 214, 0, 255},
+	"Rouge écarlate":  color.NRGBA{237, 0, 0, 255},
 	"Noir anthracite": color.NRGBA{0, 0, 0, 255},
 	"Vert amande":     color.NRGBA{193, 217, 188, 255},
 	"Bleu ciel":       color.NRGBA{135, 206, 235, 255},
