@@ -11,7 +11,7 @@ require (
 	github.com/gorilla/websocket v1.5.1
 	github.com/joho/godotenv v1.5.1
 	github.com/markbates/goth v1.78.0
-	golang.org/x/oauth2 v0.14.0
+	golang.org/x/oauth2 v0.15.0
 	google.golang.org/api v0.152.0
 )
 
@@ -46,9 +46,9 @@ require (
 	github.com/ugorji/go/codec v1.2.11 // indirect
 	go.opencensus.io v0.24.0 // indirect
 	golang.org/x/arch v0.5.0 // indirect
-	golang.org/x/crypto v0.15.0 // indirect
-	golang.org/x/net v0.18.0 // indirect
-	golang.org/x/sys v0.14.0 // indirect
+	golang.org/x/crypto v0.16.0 // indirect
+	golang.org/x/net v0.19.0 // indirect
+	golang.org/x/sys v0.15.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20231120223509-83a465c0220f // indirect
