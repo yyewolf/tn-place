@@ -18,7 +18,7 @@ WORKDIR /app/cmd/place
 RUN go mod download
 RUN go build -o /app/main
 
-FROM alpine:3.18
+FROM alpine:3.19
 LABEL maintainer="yyewolf"
 
 WORKDIR /app
