@@ -9,7 +9,7 @@
     "preview": "vite preview"
   },
   "devDependencies": {
-    "vite": "^5.0.10"
+    "vite": "^5.2.2"
   },
   "dependencies": {
     "bulma": "^0.9.4"
