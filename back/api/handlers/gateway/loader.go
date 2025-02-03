@@ -9,5 +9,5 @@ import (
 func LoadRoutes(r *gin.RouterGroup) {
 	sg := r.Group("/gateway")
 
-	sg.GET("/", middlewares.SetStatus(), middlewares.IsLoggedIn(), GetGateway)
+	sg.GET("/", middlewares.SetStatus(), GetGateway)
 }

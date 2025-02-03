@@ -80,6 +80,15 @@ export const GUI = (cvs, glWindow, gateway) => {
     }
   });
 
+  document.addEventListener("not_logged_in", () => {
+    // Hide color picker and place button
+    document.querySelector("#color-picker").style.display = "none";
+    document.querySelector("#place-color").style.display = "none";
+    // Show login button
+    document.querySelector("#login-button").style.display = "block";
+  });
+  
+
   window.addEventListener("wheel", (ev) => {
     const zoom = glWindow.getZoom();
     const mousePos = { x: ev.clientX, y: ev.clientY };

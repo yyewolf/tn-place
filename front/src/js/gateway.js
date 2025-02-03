@@ -8,6 +8,8 @@ export class Gateway {
   #socket;
   #listeners = new Map();
 
+  heartbeat;
+
   constructor(listeners) {
     this.#socket = null;
     listeners = listeners || [];
@@ -25,11 +27,23 @@ export class Gateway {
     this.#socket = new WebSocket(url);
 
     const socketMessage = async (event) => {
+      console.log("Received message:", await event.data.text());
+      if (await event.data.text() == "not_logged_in") {
+        console.error("Not logged in.");
+        document.dispatchEvent(new CustomEvent("not_logged_in", {}));
+      }
+
       let b = await event.data.arrayBuffer();
       for (const listener of this.#listeners.values()) {
         listener(b);
       }
     };
+
+    this.heartbeat = setInterval(() => {
+      if (this.#socket != null && this.#socket.readyState == 1) {
+        this.#socket.send("hb");
+      }
+    }, 10000);
 
     const socketClose = (event) => {
       this.#socket = null;
@@ -39,7 +53,7 @@ export class Gateway {
       console.error("Error making WebSocket connection.");
       alert("Failed to connect.");
       this.#socket.close();
-      window.location.href = "/";
+      // window.location.href = "/";
     };
 
     this.#socket.addEventListener("message", socketMessage);

@@ -32,22 +32,30 @@ var upgrader = websocket.Upgrader{
 func GetGateway(c *gin.Context) {
 	server.Pl.Lock()
 	defer server.Pl.Unlock()
-	i := server.Pl.GetConnIndex()
-	if i == -1 {
-		log.Println("Server full.")
-		http.Error(c.Writer, "Server full.", http.StatusServiceUnavailable)
-		return
-	}
+
 	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
 		log.Println(err)
 		return
 	}
-	ch := make(chan []byte, 8)
-	server.Pl.Clients[i] = ch
+	client := &server.PlaceClient{
+		LastHeartbeat: time.Now(),
+		Channel:       make(chan []byte, 8),
+	}
+	server.Pl.Clients = append(server.Pl.Clients, client)
 
-	go readLoop(conn, i, c, ch)
-	go writeLoop(conn, ch)
+	loggedInInterface, _ := c.Get("is_logged_in")
+	loggedIn := loggedInInterface.(bool)
+	if !loggedIn {
+		conn.WriteMessage(websocket.BinaryMessage, []byte("not_logged_in"))
+	}
+
+	go readLoop(conn, c, client, loggedIn)
+	go writeLoop(conn, client)
+
+	if !loggedIn {
+		return
+	}
 
 	gUser := c.MustGet("user").(*goth.User)
 
@@ -62,14 +70,19 @@ func GetGateway(c *gin.Context) {
 	}
 	b := make([]byte, 8)
 	binary.BigEndian.PutUint64(b, uint64(s))
-	ch <- b
+	client.Channel <- b
 }
 
 var waiter = make(map[string]time.Time)
 
-func readLoop(conn *websocket.Conn, i int, c *gin.Context, ch chan []byte) {
-	gUser := c.MustGet("user").(*goth.User)
-	waiterID := gUser.UserID
+func readLoop(conn *websocket.Conn, c *gin.Context, client *server.PlaceClient, loggedIn bool) {
+	var gUser *goth.User
+	var waiterID string
+	if loggedIn {
+		gUser = c.MustGet("user").(*goth.User)
+		waiterID = gUser.UserID
+	}
+
 	limiter := rateLimiter()
 	for {
 		_, p, err := conn.ReadMessage()
@@ -77,6 +90,13 @@ func readLoop(conn *websocket.Conn, i int, c *gin.Context, ch chan []byte) {
 			fmt.Println(err)
 			break
 		}
+
+		// Check for heartbeat
+		if string(p) == "hb" {
+			client.LastHeartbeat = time.Now()
+			continue
+		}
+
 		if !limiter() {
 			log.Printf("[ERR] %s got recked by rate limiter.\n", waiterID)
 			break
@@ -97,17 +117,28 @@ func readLoop(conn *websocket.Conn, i int, c *gin.Context, ch chan []byte) {
 		// Log
 		x, y, color := parseEvent(p)
 		log.Printf("[PLACE] User %s placed pixel at (%d, %d) with color %v\n", waiterID, x, y, color)
-		server.Pl.Canva.Placers[x][y] = gUser.Email
+
+		// server.Pl.Canva.Placers[x][y] = gUser.Email
+		server.Pl.Canva.Placers[x][y] = "Anonymous"
+
 		// User has to wait 60 seconds before setting another pixel
 		waiter[waiterID] = time.Now().Add(time.Second * time.Duration(env.C.Timeout))
 		b := make([]byte, 8)
 		binary.BigEndian.PutUint64(b, uint64(env.C.Timeout))
-		ch <- b
+
+		if client.Closed {
+			break
+		}
+
+		client.Channel <- b
 	}
-	server.Pl.Close <- i
+
+	if !client.Closed {
+		server.Pl.Close <- client
+	}
 }
 
-func writeLoop(conn *websocket.Conn, ch chan []byte) {
+func writeLoop(conn *websocket.Conn, client *server.PlaceClient) {
 	// Send amount of clients to all clients
 	b := make([]byte, 4)
 	binary.BigEndian.PutUint32(b, uint32(server.Pl.ClientAmount()))
@@ -115,7 +146,11 @@ func writeLoop(conn *websocket.Conn, ch chan []byte) {
 	server.Pl.Msgs <- b
 
 	for {
-		if p, ok := <-ch; ok {
+		if client.Closed {
+			break
+		}
+
+		if p, ok := <-client.Channel; ok {
 			conn.WriteMessage(websocket.BinaryMessage, p)
 		} else {
 			break

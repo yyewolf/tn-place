@@ -6,16 +6,23 @@ import (
 	"image/png"
 	"log"
 	"sync"
+	"time"
 
 	"github.com/yyewolf/tn-place/back/internal/canva"
 )
+
+type PlaceClient struct {
+	LastHeartbeat time.Time
+	Channel       chan []byte
+	Closed        bool
+}
 
 type Place struct {
 	sync.RWMutex
 	Paused  bool
 	Msgs    chan []byte
-	Close   chan int
-	Clients []chan []byte
+	Close   chan *PlaceClient
+	Clients []*PlaceClient
 	Canva   *canva.Canva
 	Imgbuf  []byte
 }
@@ -26,12 +33,26 @@ func NewServer(cv *canva.Canva, count int) *Place {
 	pl := &Place{
 		RWMutex: sync.RWMutex{},
 		Msgs:    make(chan []byte),
-		Close:   make(chan int),
-		Clients: make([]chan []byte, count),
+		Close:   make(chan *PlaceClient),
 		Canva:   cv,
 	}
 	go pl.broadcastLoop()
+	go pl.heartBeatWatch()
 	return pl
+}
+
+func (pl *Place) heartBeatWatch() {
+	t := time.NewTicker(time.Second * 30)
+	for {
+		select {
+		case <-t.C:
+			for _, client := range pl.Clients {
+				if client != nil && time.Since(client.LastHeartbeat) > time.Second*30 {
+					pl.Close <- client
+				}
+			}
+		}
+	}
 }
 
 func (pl *Place) ClientAmount() int {
@@ -46,30 +67,37 @@ func (pl *Place) ClientAmount() int {
 	return count
 }
 
-func (pl *Place) GetConnIndex() int {
-	for i, client := range pl.Clients {
-		if client == nil {
-			return i
-		}
-	}
-	return -1
-}
 func (pl *Place) broadcastLoop() {
 	for {
 		select {
-		case i := <-pl.Close:
-			if pl.Clients[i] != nil {
-				close(pl.Clients[i])
-				pl.Clients[i] = nil
+		case client := <-pl.Close:
+			if client.Channel != nil {
+				client.Closed = true
+				close(client.Channel)
+
+				// remove from slice
+				pl.Lock()
+				for i, c := range pl.Clients {
+					if c == client {
+						pl.Clients = append(pl.Clients[:i], pl.Clients[i+1:]...)
+						break
+					}
+				}
+				pl.Unlock()
 			}
 		case p := <-pl.Msgs:
-			for i, ch := range pl.Clients {
-				if ch != nil {
+			for i, client := range pl.Clients {
+				if client.Channel != nil {
 					select {
-					case ch <- p:
+					case client.Channel <- p:
 					default:
-						close(ch)
-						pl.Clients[i] = nil
+						client.Closed = true
+						close(client.Channel)
+
+						// remove from slice
+						pl.Lock()
+						pl.Clients = append(pl.Clients[:i], pl.Clients[i+1:]...)
+						pl.Unlock()
 					}
 				}
 			}
